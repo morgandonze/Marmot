@@ -1,1 +1,1 @@
-[{"uuid":"65c673d4-c430-4be0-bfd5-8f4cd50f312c","id":1,"iteration":0,"description":"Something","status":"ready","createdAt":1742507385796,"completedAt":null,"repeatInterval":86400000}]
+[{"uuid":"1888e27a-f0c3-463e-add2-148ad03419f5","id":3,"iteration":5,"description":"Pick it up!","status":"ready","createdAt":1742512438744,"completedAt":null,"repeatInterval":86400000},{"uuid":"f982a56f-1ada-4b3c-ad9b-4c1ba8f8a585","id":4,"iteration":0,"description":"Put it down!","status":"ready","createdAt":1742512554439,"completedAt":null,"repeatInterval":86400000}]

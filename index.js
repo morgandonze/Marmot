@@ -7,6 +7,7 @@ import * as fs from 'fs';
 
 let nextID = 0;
 const marmotTitle = "[ Marmot ]"
+let currentTask;
 
 let defaultRepeatInterval = 1000*60*60*24;
 
@@ -59,6 +60,8 @@ async function completeRepHandler(tasks, actionInfo) {
   const selectedTask = actionInfo.selectedTask;
 
   if (confirm) {
+    currentTask = null;
+
     tasks.slice(selectedTask.index, 0, selectedTask);
     Object.assign(selectedTask, {
       status: "completed",
@@ -81,6 +84,8 @@ async function completeTaskHandler(tasks, actionInfo) {
   const selectedTask = actionInfo.selectedTask;
 
   if (confirm) {
+    currentTask = null;
+
     Object.assign(selectedTask, {
       status: "completed",
       completedAt: (new Date()).getTime()
@@ -118,79 +123,84 @@ async function editTaskHandler(tasks, actionInfo) {
   return tasks;
 }
 
-function backHandler(tasks) { return tasks };
+function backHandler(tasks) {
+  currentTask = null;
+  return tasks
+};
 
 function exitHandler(tasks, actionInfo) {
   return tasks;
 }
 
-function getMenuActions(hasSelection) {
+function setCurrentTaskHandler(tasks, task) {
+  return () => {
+    currentTask = task;
+    return tasks;
+  }
+}
+
+function taskMenuAction(tasks, task) {
+  return {
+    "value": {"action": "Set task", "handler": setCurrentTaskHandler(tasks, task)},
+    "label": task.description
+  }
+}
+
+function getMenuActions(tasks, hasSelection) {
+  let actions = []
   if (hasSelection) {
-    return [
+    actions = actions.concat([
       {
         "value": {"action": "Back", "handler": backHandler},
-        "label": "Back"
+        "label": "> Back"
       },
       {
         "value": {"action": "Complete Rep", "handler": completeRepHandler},
-        "label": "Complete Rep"
+        "label": "> Complete Rep"
       },
       {
         "value": {"action": "Complete Task", "handler": completeTaskHandler},
-        "label": "Complete Task"
+        "label": "> Complete Task"
       },
       {
         "value": {"action": "Abort Task", "handler": abortTaskHandler},
-        "label": "Abort Task"
-      },
-      {
-        "value": {"action": "Add Task", "handler": addTaskHandler},
-        "label": "Add Task"
+        "label": "> Abort Task"
       },
       {
         "value": {"action": "Edit Task", "handler": editTaskHandler},
-        "label": "Edit Task"
+        "label": "> Edit Task"
       },
       {
         "value": {"action": "Exit", "handler": exitHandler},
-        "label": "Exit"
+        "label": "> Exit"
       }
-    ]
+    ])
   } else {
-    return [
+    actions = actions.concat([
+      {
+        "value": {"action": "Exit", "handler": exitHandler},
+        "label": "> Exit"
+      },
       {
         "value": {"action": "Add Task", "handler": addTaskHandler},
-        "label": "Add Task"
-      },
-      {
-        "value": {"action": "Exit", "handler": exitHandler},
-        "label": "Exit"
+        "label": "> Add Task"
       }
-    ]
+    ])
+
+    actions = actions.concat(tasks.map(task => taskMenuAction(tasks, task)))
   }
 
+  return actions;
 }
 
-function taskList(tasks) {
-  return () => p.select({
-    message: "Tasks:",
-    initialValue: tasks[0].value,
-    options: tasks
-  })
-}
-
-function actionsMenu(selectedTask) {
+function actionsMenu(tasks, selectedTask) {
   const hasSelectedTask = !!selectedTask;
-
-  const message = hasSelectedTask ?
-    "Task: [" + selectedTask.description + "; status: " + selectedTask.status + "; iteration: "+ selectedTask.iteration + " ]" :
-    "Choose an action (no tasks yet!)"
-
-  const menuActions = getMenuActions(hasSelectedTask)
+  const initialIndex = hasSelectedTask ? 0 : 2;
+  const menuActions = getMenuActions(tasks, hasSelectedTask)
 
   return () => p.select({
-    message: message,
-    initialValue: menuActions[0].value,
+    message: "Select:",
+    initialValue: menuActions[initialIndex].value,
     options: menuActions
   })
 }
@@ -199,23 +209,22 @@ async function main() {
   const data = fs.readFileSync('./data.json', 'utf-8');
   let tasks = JSON.parse(data);
   let activeTasks, taskOptions;
-  let selectedTask, menuOutput = {};
+  let selectedTask;
+  let output = {};
 
-  while(menuOutput.action != "Exit") {
+  while(output.action != "Exit") {
     activeTasks = tasks.filter((task) => (task.status == "ready"))
     taskOptions = optionsFromTasks(activeTasks);
-    selectedTask = null;
 
-    if (taskOptions.length) {
-      console.clear();
-      p.intro(marmotTitle)
-      selectedTask = await taskList(taskOptions)();
-    }
-  
     console.clear();
-    p.intro(marmotTitle)
-    menuOutput = await actionsMenu(selectedTask)();
-    tasks = await menuOutput.handler(tasks, {"selectedTask": selectedTask, "menuOutput": menuOutput});
+
+    p.intro(marmotTitle);
+    if (currentTask) {
+      p.log.message("Current task: " + currentTask.description + " x" + currentTask.iteration);
+    }
+
+    output = await actionsMenu(activeTasks, currentTask)();
+    tasks = await output.handler(tasks, {"selectedTask": currentTask, "menuOutput": output});
   }
 
   const tasksJson = JSON.stringify(tasks)
