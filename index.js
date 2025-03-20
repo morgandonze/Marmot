@@ -4,12 +4,22 @@ import color from 'picocolors';
 
 import * as fs from 'fs';
 
-function listHandler(options) {
-  return () => p.select({
-      message: 'Choose an item',
-      initialValue: options[0].value,
-      options: options
-    });
+function createTask(title) {
+  return {
+    description: title,
+    status: "ready",
+    createdAt: (new Date()).getTime(),
+    completedAt: null
+  }
+}
+
+function optionsFromTasks(tasks) {
+  return tasks.map(task => {
+    return {
+      value: task,
+      label: task.description
+    }
+  })
 }
 
 async function completeRepHandler(tasks, actionInfo) {
@@ -26,10 +36,7 @@ async function addTaskHandler(tasks, actionInfo) {
     message: "New task:",
     placeholder: "Enter title"
   })
-  tasks.push({
-    "value": taskTitle,
-    "label": taskTitle
-  })
+  tasks.push(createTask(taskTitle))
 }
 async function editTaskHandler(tasks, actionInfo) {
   console.log("Task edited!")
@@ -60,7 +67,7 @@ const menuActions = [
     "label": "Edit Task"
   },
   {
-    "value": {"action": "Exit", "handler": (tasks, actionInfo) => {}},
+    "value": {"action": "Exit", "handler": (_tasks, _actionInfo) => {}},
     "label": "Exit"
   }
 ]
@@ -68,6 +75,7 @@ const menuActions = [
 function taskList(tasks) {
   return () => p.select({
     message: "Tasks:",
+    maxItems: 1,
     initialValue: tasks[0].value,
     options: tasks
   })
@@ -75,7 +83,7 @@ function taskList(tasks) {
 
 function actionsMenu(selectedTask) {
   return () => p.select({
-    message: selectedTask,
+    message: selectedTask.description,
     initialValue: menuActions[0].value,
     options: menuActions
   })
@@ -85,16 +93,23 @@ async function main() {
   // Read options from json file
   const data = fs.readFileSync('./data.json', 'utf-8');
   const tasks = JSON.parse(data);
-  let listOutput, menuOutput;
+  let taskOptions;
 
-  while(!menuOutput || menuOutput.action != "Exit") {
+  let selectedTask, menuOutput = {};
+
+  while(menuOutput.action != "Exit") {
+    taskOptions = optionsFromTasks(tasks);
+
     console.clear();
-    listOutput = await taskList(tasks)();
+    selectedTask = await taskList(taskOptions)();
   
     console.clear();
-    menuOutput = await actionsMenu(listOutput)();
-    await menuOutput.handler(tasks, {"listOutput": listOutput, "menuOutput": menuOutput});
+    menuOutput = await actionsMenu(selectedTask)();
+    await menuOutput.handler(tasks, {"selectedTask": selectedTask, "menuOutput": menuOutput});
   }
+
+  const tasksJson = JSON.stringify(tasks)
+  fs.writeFileSync('newData.json', tasksJson);
 
 }
 
