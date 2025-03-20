@@ -1,16 +1,45 @@
 import { setTimeout } from 'node:timers/promises';
 import * as p from '@clack/prompts';
 import color from 'picocolors';
+import { v4 as uuidv4 } from 'uuid';
 
 import * as fs from 'fs';
 
-function createTask(title) {
+let nextID = 0;
+const marmotTitle = "[ Marmot ]"
+
+let defaultRepeatInterval = 1000*60*60*24;
+
+function getNextId() {
+  nextID++;
+  return nextID;
+}
+
+function createTask(data) {
   return {
-    description: title,
+    uuid: uuidv4(),
+    id: getNextId(),
+    iteration: 0,
+    description: data.description,
+    status: "ready",
+    createdAt: (new Date()).getTime(),
+    completedAt: null,
+    repeatInterval: defaultRepeatInterval
+  }
+
+  nextID++;
+}
+
+function makeNextRep(previousRep) {
+  const nextRep = Object.assign({}, previousRep);
+  return Object.assign(nextRep, {
+    id: getNextId(),
+    uuid: uuidv4(),
+    iteration: previousRep.iteration + 1,
     status: "ready",
     createdAt: (new Date()).getTime(),
     completedAt: null
-  }
+  })
 }
 
 function optionsFromTasks(tasks) {
@@ -23,8 +52,24 @@ function optionsFromTasks(tasks) {
 }
 
 async function completeRepHandler(tasks, actionInfo) {
-  console.log("Rep completed!")
-  
+  const confirm = await p.confirm({
+    message: "Complete rep?"
+  })
+
+  const selectedTask = actionInfo.selectedTask;
+
+  if (confirm) {
+    tasks.splice(selectedTask.index, 1, selectedTask);
+    Object.assign(selectedTask, {
+      status: "completed",
+      completedAt: (new Date()).getTime()
+    })
+
+    // Create next repetition
+    const nextRep = makeNextRep(selectedTask)
+    tasks.push(nextRep)
+  }
+
   return tasks;
 }
 
@@ -41,11 +86,14 @@ async function abortTaskHandler(tasks, actionInfo) {
 }
 
 async function addTaskHandler(tasks, actionInfo) {
+  console.clear();
+  p.intro(marmotTitle);
+
   const taskTitle = await p.text({
     message: "New task:",
     placeholder: "Enter title"
   })
-  tasks.push(createTask(taskTitle))
+  tasks.push(createTask({description: taskTitle}))
   
   return tasks;
 }
@@ -56,70 +104,102 @@ async function editTaskHandler(tasks, actionInfo) {
   return tasks;
 }
 
+function backHandler(tasks) { return tasks };
+
 function exitHandler(tasks, actionInfo) {
   return tasks;
 }
 
-const menuActions = [
-  {
-    "value": {"action": "Complete Rep", "handler": completeRepHandler},
-    "label": "Complete Rep"
-  },
-  {
-    "value": {"action": "Complete Task", "handler": completeTaskHandler},
-    "label": "Complete Task"
-  },
-  {
-    "value": {"action": "Abort Task", "handler": abortTaskHandler},
-    "label": "Abort task"
-  },
-  {
-    "value": {"action": "Add Task", "handler": addTaskHandler},
-    "label": "Add Task"
-  },
-  {
-    "value": {"action": "Edit Task", "handler": editTaskHandler},
-    "label": "Edit Task"
-  },
-  {
-    "value": {"action": "Exit", "handler": exitHandler},
-    "label": "Exit"
+function getMenuActions(hasSelection) {
+  if (hasSelection) {
+    return [
+      {
+        "value": {"action": "Back", "handler": backHandler},
+        "label": "Back"
+      },
+      {
+        "value": {"action": "Complete Rep", "handler": completeRepHandler},
+        "label": "Complete Rep"
+      },
+      {
+        "value": {"action": "Complete Task", "handler": completeTaskHandler},
+        "label": "Complete Task"
+      },
+      {
+        "value": {"action": "Abort Task", "handler": abortTaskHandler},
+        "label": "Abort Task"
+      },
+      {
+        "value": {"action": "Add Task", "handler": addTaskHandler},
+        "label": "Add Task"
+      },
+      {
+        "value": {"action": "Edit Task", "handler": editTaskHandler},
+        "label": "Edit Task"
+      },
+      {
+        "value": {"action": "Exit", "handler": exitHandler},
+        "label": "Exit"
+      }
+    ]
+  } else {
+    return [
+      {
+        "value": {"action": "Add Task", "handler": addTaskHandler},
+        "label": "Add Task"
+      },
+      {
+        "value": {"action": "Exit", "handler": exitHandler},
+        "label": "Exit"
+      }
+    ]
   }
-]
+
+}
 
 function taskList(tasks) {
   return () => p.select({
     message: "Tasks:",
-    maxItems: 1,
     initialValue: tasks[0].value,
     options: tasks
   })
 }
 
 function actionsMenu(selectedTask) {
+  const hasSelectedTask = !!selectedTask;
+
+  const message = hasSelectedTask ?
+    "Task: [" + selectedTask.description + "; status: " + selectedTask.status + "; iteration: "+ selectedTask.iteration + " ]" :
+    "Choose an action (no tasks yet!)"
+
+  const menuActions = getMenuActions(hasSelectedTask)
+
   return () => p.select({
-    message: "Task: [" + selectedTask.description + "]",
+    message: message,
     initialValue: menuActions[0].value,
     options: menuActions
   })
 }
 
 async function main() {
-  const data = fs.readFileSync('./data.json', 'utf-8');
+  const data = fs.readFileSync('./newData.json', 'utf-8');
   let tasks = JSON.parse(data);
-  let taskOptions;
-
+  let activeTasks, taskOptions;
   let selectedTask, menuOutput = {};
 
   while(menuOutput.action != "Exit") {
-    taskOptions = optionsFromTasks(tasks);
+    activeTasks = tasks.filter((task) => (task.status == "ready"))
+    taskOptions = optionsFromTasks(activeTasks);
+    selectedTask = null;
 
-    console.clear();
-    p.intro("Marmot!")
-    selectedTask = await taskList(taskOptions)();
+    if (taskOptions.length) {
+      console.clear();
+      p.intro(marmotTitle)
+      selectedTask = await taskList(taskOptions)();
+    }
   
     console.clear();
-    p.intro("Marmot!")
+    p.intro(marmotTitle)
     menuOutput = await actionsMenu(selectedTask)();
     tasks = await menuOutput.handler(tasks, {"selectedTask": selectedTask, "menuOutput": menuOutput});
   }
