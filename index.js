@@ -24,25 +24,40 @@ function optionsFromTasks(tasks) {
 
 async function completeRepHandler(tasks, actionInfo) {
   console.log("Rep completed!")
+  
+  return tasks;
 }
+
 async function completeTaskHandler(tasks, actionInfo) {
   console.log("Task completed!")
+  
+  return tasks;
 }
+
 async function abortTaskHandler(tasks, actionInfo) {
   console.log("Task aborted!")
+  
+  return tasks;
 }
+
 async function addTaskHandler(tasks, actionInfo) {
   const taskTitle = await p.text({
     message: "New task:",
     placeholder: "Enter title"
   })
   tasks.push(createTask(taskTitle))
-}
-async function editTaskHandler(tasks, actionInfo) {
-  console.log("Task edited!")
+  
+  return tasks;
 }
 
-function exitHandler() {
+async function editTaskHandler(tasks, actionInfo) {
+  console.log("Task edited!")
+
+  return tasks;
+}
+
+function exitHandler(tasks, actionInfo) {
+  return tasks;
 }
 
 const menuActions = [
@@ -67,7 +82,7 @@ const menuActions = [
     "label": "Edit Task"
   },
   {
-    "value": {"action": "Exit", "handler": (_tasks, _actionInfo) => {}},
+    "value": {"action": "Exit", "handler": exitHandler},
     "label": "Exit"
   }
 ]
@@ -83,16 +98,15 @@ function taskList(tasks) {
 
 function actionsMenu(selectedTask) {
   return () => p.select({
-    message: selectedTask.description,
+    message: "Task: [" + selectedTask.description + "]",
     initialValue: menuActions[0].value,
     options: menuActions
   })
 }
 
 async function main() {
-  // Read options from json file
   const data = fs.readFileSync('./data.json', 'utf-8');
-  const tasks = JSON.parse(data);
+  let tasks = JSON.parse(data);
   let taskOptions;
 
   let selectedTask, menuOutput = {};
@@ -101,11 +115,13 @@ async function main() {
     taskOptions = optionsFromTasks(tasks);
 
     console.clear();
+    p.intro("Marmot!")
     selectedTask = await taskList(taskOptions)();
   
     console.clear();
+    p.intro("Marmot!")
     menuOutput = await actionsMenu(selectedTask)();
-    await menuOutput.handler(tasks, {"selectedTask": selectedTask, "menuOutput": menuOutput});
+    tasks = await menuOutput.handler(tasks, {"selectedTask": selectedTask, "menuOutput": menuOutput});
   }
 
   const tasksJson = JSON.stringify(tasks)
