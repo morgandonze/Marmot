@@ -22,21 +22,38 @@ function addHandler() {
 function deleteHandler() {
 }
 
+function keepGoingHandler() {
+    return () => 
+      p.confirm({
+          message: "Keep going?",
+          initialValue: true,
+      })
+}
+
 async function main() {
   // Read options from json file
   const data = fs.readFileSync('./data.json', 'utf-8');
   const options = JSON.parse(data);
 
-  // Get input
+  let keepGoing = true;
+  let output;
+
+  // Dialogue
   console.clear();
-  const output = await addHandler(options)();
+
+  while(keepGoing) {
+    output = await keepGoingHandler()();
+    keepGoing = (output == true);
+  }
+
+  // output = await addHandler(options)();
 
   // Add new option to list
-  options.push({"value": output, label: output})
+  // options.push({"value": output, label: output})
 
   // Write to file
-  const updatedOptionsJson = JSON.stringify(options);
-  fs.writeFileSync('./newData.json', updatedOptionsJson);
+  // const updatedOptionsJson = JSON.stringify(options);
+  // fs.writeFileSync('./newData.json', updatedOptionsJson);
 }
 
 main().catch(console.error)
