@@ -59,25 +59,39 @@ async function completeRepHandler(tasks, actionInfo) {
   const selectedTask = actionInfo.selectedTask;
 
   if (confirm) {
-    tasks.splice(selectedTask.index, 1, selectedTask);
+    tasks.slice(selectedTask.index, 0, selectedTask);
     Object.assign(selectedTask, {
       status: "completed",
       completedAt: (new Date()).getTime()
     })
 
     // Create next repetition
-    const nextRep = makeNextRep(selectedTask)
-    tasks.push(nextRep)
+    const nextRep = makeNextRep(selectedTask);
+    tasks.push(nextRep);
   }
 
   return tasks;
 }
 
 async function completeTaskHandler(tasks, actionInfo) {
-  console.log("Task completed!")
-  
+  const confirm = await p.confirm({
+    message: "Complete task? (stops repeating)"
+  })
+
+  const selectedTask = actionInfo.selectedTask;
+
+  if (confirm) {
+    Object.assign(selectedTask, {
+      status: "completed",
+      completedAt: (new Date()).getTime()
+    })
+
+    tasks.splice(selectedTask.index, 1);
+  }
+
   return tasks;
 }
+
 
 async function abortTaskHandler(tasks, actionInfo) {
   console.log("Task aborted!")
@@ -182,7 +196,7 @@ function actionsMenu(selectedTask) {
 }
 
 async function main() {
-  const data = fs.readFileSync('./newData.json', 'utf-8');
+  const data = fs.readFileSync('./data.json', 'utf-8');
   let tasks = JSON.parse(data);
   let activeTasks, taskOptions;
   let selectedTask, menuOutput = {};
@@ -205,7 +219,7 @@ async function main() {
   }
 
   const tasksJson = JSON.stringify(tasks)
-  fs.writeFileSync('newData.json', tasksJson);
+  fs.writeFileSync('data.json', tasksJson);
 
 }
 
