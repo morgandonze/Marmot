@@ -12,48 +12,90 @@ function listHandler(options) {
     });
 }
 
-function addHandler() {
-  return () => p.text({
-        message: "Add a new item",
-        placeholder: "Enter an item..."
+async function completeRepHandler(tasks, actionInfo) {
+  console.log("Rep completed!")
+}
+async function completeTaskHandler(tasks, actionInfo) {
+  console.log("Task completed!")
+}
+async function abortTaskHandler(tasks, actionInfo) {
+  console.log("Task aborted!")
+}
+async function addTaskHandler(tasks, actionInfo) {
+  const taskTitle = await p.text({
+    message: "New task:",
+    placeholder: "Enter title"
+  })
+  tasks.push({
+    "value": taskTitle,
+    "label": taskTitle
+  })
+}
+async function editTaskHandler(tasks, actionInfo) {
+  console.log("Task edited!")
+}
+
+function exitHandler() {
+}
+
+const menuActions = [
+  {
+    "value": {"action": "Complete Rep", "handler": completeRepHandler},
+    "label": "Complete Rep"
+  },
+  {
+    "value": {"action": "Complete Task", "handler": completeTaskHandler},
+    "label": "Complete Task"
+  },
+  {
+    "value": {"action": "Abort Task", "handler": abortTaskHandler},
+    "label": "Abort task"
+  },
+  {
+    "value": {"action": "Add Task", "handler": addTaskHandler},
+    "label": "Add Task"
+  },
+  {
+    "value": {"action": "Edit Task", "handler": editTaskHandler},
+    "label": "Edit Task"
+  },
+  {
+    "value": {"action": "Exit", "handler": (tasks, actionInfo) => {}},
+    "label": "Exit"
+  }
+]
+
+function taskList(tasks) {
+  return () => p.select({
+    message: "Tasks:",
+    initialValue: tasks[0].value,
+    options: tasks
   })
 }
 
-function deleteHandler() {
-}
-
-function keepGoingHandler() {
-    return () => 
-      p.confirm({
-          message: "Keep going?",
-          initialValue: true,
-      })
+function actionsMenu(selectedTask) {
+  return () => p.select({
+    message: selectedTask,
+    initialValue: menuActions[0].value,
+    options: menuActions
+  })
 }
 
 async function main() {
   // Read options from json file
   const data = fs.readFileSync('./data.json', 'utf-8');
-  const options = JSON.parse(data);
+  const tasks = JSON.parse(data);
+  let listOutput, menuOutput;
 
-  let keepGoing = true;
-  let output;
-
-  // Dialogue
-  console.clear();
-
-  while(keepGoing) {
-    output = await keepGoingHandler()();
-    keepGoing = (output == true);
+  while(!menuOutput || menuOutput.action != "Exit") {
+    console.clear();
+    listOutput = await taskList(tasks)();
+  
+    console.clear();
+    menuOutput = await actionsMenu(listOutput)();
+    await menuOutput.handler(tasks, {"listOutput": listOutput, "menuOutput": menuOutput});
   }
 
-  // output = await addHandler(options)();
-
-  // Add new option to list
-  // options.push({"value": output, label: output})
-
-  // Write to file
-  // const updatedOptionsJson = JSON.stringify(options);
-  // fs.writeFileSync('./newData.json', updatedOptionsJson);
 }
 
 main().catch(console.error)
