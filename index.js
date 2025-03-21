@@ -40,7 +40,7 @@ function makeNextRep(previousRep) {
     status: "ready",
     createdAt: (new Date()).getTime(),
     completedAt: null
-  })
+  });
 }
 
 function optionsFromTasks(tasks) {
@@ -49,7 +49,7 @@ function optionsFromTasks(tasks) {
       value: task,
       label: task.description
     }
-  })
+  });
 }
 
 async function completeRepHandler(tasks, actionInfo) {
@@ -57,20 +57,16 @@ async function completeRepHandler(tasks, actionInfo) {
     message: "Complete rep?"
   })
 
-  const selectedTask = actionInfo.selectedTask;
-
   if (confirm) {
-    currentTask = null;
+    const nextRep = makeNextRep(currentTask);
+    tasks.push(nextRep);
 
-    tasks.slice(selectedTask.index, 0, selectedTask);
-    Object.assign(selectedTask, {
+    Object.assign(currentTask, {
       status: "completed",
       completedAt: (new Date()).getTime()
     })
 
-    // Create next repetition
-    const nextRep = makeNextRep(selectedTask);
-    tasks.push(nextRep);
+    currentTask = null;
   }
 
   return tasks;
@@ -81,26 +77,41 @@ async function completeTaskHandler(tasks, actionInfo) {
     message: "Complete task? (stops repeating)"
   })
 
+  if (confirm) {
+    Object.assign(currentTask, {
+      status: "completed",
+      completedAt: (new Date()).getTime()
+    })
+
+    currentTask = null;
+  }
+
+  return tasks;
+}
+
+async function abortTaskHandler(tasks, actionInfo) {
+  const confirm = await p.confirm({
+    message: "Abort rep?"
+  })
+
   const selectedTask = actionInfo.selectedTask;
 
   if (confirm) {
     currentTask = null;
 
     Object.assign(selectedTask, {
-      status: "completed",
+      status: "aborted",
       completedAt: (new Date()).getTime()
     })
 
-    tasks.splice(selectedTask.index, 1);
+    let i = tasks.indexOf(selectedTask);
+    tasks.splice(i, 1, selectedTask);
+
+    // Create next repetition
+    const nextRep = makeNextRep(selectedTask);
+    tasks.push(nextRep);
   }
 
-  return tasks;
-}
-
-
-async function abortTaskHandler(tasks, actionInfo) {
-  console.log("Task aborted!")
-  
   return tasks;
 }
 
@@ -147,7 +158,8 @@ function taskMenuAction(tasks, task) {
 }
 
 function getMenuActions(tasks, hasSelection) {
-  let actions = []
+  let actions = [];
+
   if (hasSelection) {
     actions = actions.concat([
       {
@@ -174,7 +186,7 @@ function getMenuActions(tasks, hasSelection) {
         "value": {"action": "Exit", "handler": exitHandler},
         "label": "> Exit"
       }
-    ])
+    ]);
   } else {
     actions = actions.concat([
       {
@@ -185,9 +197,9 @@ function getMenuActions(tasks, hasSelection) {
         "value": {"action": "Add Task", "handler": addTaskHandler},
         "label": "> Add Task"
       }
-    ])
+    ]);
 
-    actions = actions.concat(tasks.map(task => taskMenuAction(tasks, task)))
+    actions = actions.concat(tasks.map(task => taskMenuAction(tasks, task)));
   }
 
   return actions;
@@ -195,14 +207,21 @@ function getMenuActions(tasks, hasSelection) {
 
 function actionsMenu(tasks, selectedTask) {
   const hasSelectedTask = !!selectedTask;
-  const initialIndex = hasSelectedTask ? 0 : 2;
+
   const menuActions = getMenuActions(tasks, hasSelectedTask)
+  let initialIndex =
+    hasSelectedTask ?
+      0 :
+      menuActions.length > 2 ?
+        2 :
+        1
 
   return () => p.select({
     message: "Select:",
+    maxItems: 6,
     initialValue: menuActions[initialIndex].value,
     options: menuActions
-  })
+  });
 }
 
 async function main() {
@@ -217,19 +236,22 @@ async function main() {
     taskOptions = optionsFromTasks(activeTasks);
 
     console.clear();
-
     p.intro(marmotTitle);
+
     if (currentTask) {
-      p.log.message("Current task: " + currentTask.description + " x" + currentTask.iteration);
-    }
+      p.log.message(
+        "Current task: " +
+        currentTask.description +
+        " x" + currentTask.iteration
+      );
+    };
 
     output = await actionsMenu(activeTasks, currentTask)();
     tasks = await output.handler(tasks, {"selectedTask": currentTask, "menuOutput": output});
   }
 
-  const tasksJson = JSON.stringify(tasks)
+  const tasksJson = JSON.stringify(tasks);
   fs.writeFileSync('data.json', tasksJson);
+};
 
-}
-
-main().catch(console.error)
+main().catch(console.error);
