@@ -197,10 +197,58 @@
     "iteration": 1,
     "description": "Color test",
     "project": "Test",
-    "status": "ready",
+    "status": "completed",
     "createdAt": 1742677239904,
-    "completedAt": null,
+    "completedAt": 1742677399356,
     "repeatInterval": 61200,
     "sequenceId": "bd9cf8d4-e438-406d-a209-b5c2fc91cb0d"
+  },
+  {
+    "uuid": "a285edf4-977b-4302-9b52-f5f3e94ef122",
+    "id": 17,
+    "iteration": 0,
+    "description": "Color test",
+    "project": "Test",
+    "status": "completed",
+    "createdAt": 1742677440422,
+    "completedAt": 1742678083522,
+    "repeatInterval": 61200,
+    "sequenceId": "9c7eddd4-8a48-4b91-9348-4e0e42842ec0"
+  },
+  {
+    "uuid": "4493f155-b042-4b49-90e1-c549adcc69cc",
+    "id": 18,
+    "iteration": 0,
+    "description": "Color test 2",
+    "project": "Test",
+    "status": "completed",
+    "createdAt": 1742677792241,
+    "completedAt": 1742677988383,
+    "repeatInterval": 61200,
+    "sequenceId": "e411b497-7cbb-4557-a4ee-d759c8e6862b"
+  },
+  {
+    "uuid": "da5ee9bc-282b-4718-9153-d356c5a9a730",
+    "id": 19,
+    "iteration": 1,
+    "description": "Color test 2",
+    "project": "Test",
+    "status": "completed",
+    "createdAt": 1742677988383,
+    "completedAt": 1742678079308,
+    "repeatInterval": 25200,
+    "sequenceId": "e411b497-7cbb-4557-a4ee-d759c8e6862b"
+  },
+  {
+    "uuid": "ca545855-4acb-4e8c-99bd-97fc8f04f85c",
+    "id": 20,
+    "iteration": 2,
+    "description": "Color test 2",
+    "project": "Test",
+    "status": "ready",
+    "createdAt": 1742678079308,
+    "completedAt": null,
+    "repeatInterval": 25200,
+    "sequenceId": "e411b497-7cbb-4557-a4ee-d759c8e6862b"
   }
 ]

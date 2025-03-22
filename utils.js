@@ -52,10 +52,27 @@ export function formatTaskLabel(task) {
   }
   
   // For subsequent iterations, check if enough time has passed since creation
-  const nextShowTime = task.createdAt + task.repeatInterval;
-  if (nextShowTime > now) {
-    const timeToWait = nextShowTime - now;
-    return pc.cyan(`${task.description}${task.project ? ` [${task.project}]` : ''} - Available in ${formatTimeInterval(timeToWait)}`);
+  const readyTime = task.createdAt + task.repeatInterval;
+  const timeSinceReady = now - readyTime;
+  
+  // Calculate percentages of the repeat interval
+  const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
+  const percentToReady = ((readyTime - now) / task.repeatInterval) * 100;
+  
+  const baseLabel = `${task.description}${task.project ? ` [${task.project}]` : ''}`;
+  
+  if (readyTime > now) {
+    // Task is waiting
+    const timeToWait = readyTime - now;
+    if (percentToReady <= 10) {
+      // Almost ready (within 10% of ready time)
+      return pc.magenta(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+    }
+    return pc.cyan(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+  } else if (percentSinceReady >= 60) {
+    // Almost overdue (60% or more past ready time)
+    return pc.yellow(baseLabel);
   }
-  return `${task.description}${task.project ? ` [${task.project}]` : ''}`;
+  
+  return baseLabel;
 } 

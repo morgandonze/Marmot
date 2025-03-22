@@ -60,8 +60,15 @@ async function main() {
       if (task.iteration === 0) return true;
       
       // For subsequent iterations, check if enough time has passed since creation
-      const nextShowTime = task.createdAt + task.repeatInterval;
-      return state.showWaiting || now >= nextShowTime;
+      const readyTime = task.createdAt + task.repeatInterval;
+      const timeToReady = readyTime - now;
+      const percentToReady = (timeToReady / task.repeatInterval) * 100;
+      
+      // Show task if:
+      // 1. It's ready (past ready time)
+      // 2. showWaiting is true
+      // 3. It's almost ready (within 10% of ready time)
+      return state.showWaiting || now >= readyTime || percentToReady <= 10;
     });
     
     // Show current filters
