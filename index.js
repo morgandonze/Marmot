@@ -89,13 +89,14 @@ async function main() {
                         task.successful === false ? "aborted" : "completed (late)";
       let timingInfo = '';
       
+      // Calculate timing variables for both status and color
+      const readyTime = task.createdAt + task.repeatInterval;
+      const timeSinceReady = now - readyTime;
+      const timeToReady = readyTime - now;
+      const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
+      const percentToReady = (timeToReady / task.repeatInterval) * 100;
+      
       if (task.inProgress) {
-        const readyTime = task.createdAt + task.repeatInterval;
-        const timeSinceReady = now - readyTime;
-        const timeToReady = readyTime - now;
-        const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
-        const percentToReady = (timeToReady / task.repeatInterval) * 100;
-        
         if (readyTime > now) {
           // Task is waiting
           timingStatus = percentToReady <= 10 ? "almost ready" : "waiting";
@@ -112,13 +113,24 @@ async function main() {
         }
       }
       
-      p.log.message(pc.bgBlackBright(pc.black(task.description)));
+      // Color the description based on status
+      let descriptionColor = pc.white;
+      if (task.inProgress) {
+        if (readyTime > now) {
+          // Task is waiting
+          descriptionColor = percentToReady <= 10 ? pc.magenta : pc.cyan;
+        } else if (timeSinceReady >= task.repeatInterval) {
+          descriptionColor = pc.red;
+        } else if (percentSinceReady >= 60) {
+          descriptionColor = pc.yellow;
+        }
+      }
+      
+      p.log.message(descriptionColor(`${task.description}${task.project ? ` [${task.project}]` : ''}`));
       p.log.message(`Completion Rate: ${pc.yellowBright(completionPercentage + "%")} (${completedTasks}/${nonPendingTasks} completed)`);
-      p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
       p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
+      p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
       p.log.message(`Iteration: ${task.iteration}`);
-      p.log.message(`Project: ${task.project || 'None'}`);
-      p.log.message(`Created: ${createdDate}`);
     }
 
     output = await actionsMenu(activeTasks)();
