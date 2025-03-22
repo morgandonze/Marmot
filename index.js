@@ -1,7 +1,4 @@
-import { setTimeout } from 'node:timers/promises';
 import * as p from '@clack/prompts';
-import color from 'picocolors';
-import { handleTask } from './handlers.js';
 import { actionsMenu } from './actionsMenu.js';
 import { APP_TITLE, TASK_STATUS } from './constants.js';
 import { loadData, saveData, formatTaskLabel } from './utils.js';

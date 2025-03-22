@@ -4,11 +4,7 @@ import { ACTION_TYPES } from './constants.js';
 import { formatTaskLabel } from './utils.js';
 
 import {
-  handleTask,
-  optionsFromTasks,
-  createTask,
   exitHandler,
-  makeNextRep,
   completeRepHandler,
   completeTaskHandler,
   abortTaskHandler,
