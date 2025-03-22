@@ -18,5 +18,6 @@ export const ACTION_TYPES = {
   SELECT_TASK: "Select Task",
   TOGGLE_WAITING: "Toggle Waiting Tasks",
   FILTER_PROJECT: "Filter by Project",
+  SHOW_HISTORY: "Show History",
   EXIT: "Exit"
 }; 

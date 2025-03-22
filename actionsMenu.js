@@ -12,7 +12,8 @@ import {
   editTaskHandler,
   backHandler,
   toggleWaitingHandler,
-  filterProjectHandler
+  filterProjectHandler,
+  showHistoryHandler
 } from './handlers.js'
 
 const actionsWithSelection = [
@@ -35,6 +36,10 @@ const actionsWithSelection = [
   {
     value: {action: ACTION_TYPES.EDIT_TASK, handler: editTaskHandler},
     label: "> Edit Task"
+  },
+  {
+    value: {action: ACTION_TYPES.SHOW_HISTORY, handler: showHistoryHandler},
+    label: "> Show History"
   },
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},

@@ -21,7 +21,8 @@ export function makeNextRep(previousRep) {
     iteration: previousRep.iteration + 1,
     status: TASK_STATUS.READY,
     createdAt: now,
-    completedAt: null
+    completedAt: null,
+    sequenceId: previousRep.sequenceId
   };
 }
 
@@ -36,7 +37,8 @@ export function createTask(data) {
     status: TASK_STATUS.READY,
     createdAt: now,
     completedAt: null,
-    repeatInterval: data.repeatInterval || DEFAULT_REPEAT_INTERVAL
+    repeatInterval: data.repeatInterval || DEFAULT_REPEAT_INTERVAL,
+    sequenceId: generateId()
   };
 }
 
@@ -240,6 +242,52 @@ export async function filterProjectHandler(tasks) {
   });
 
   state.projectFilter = selectedProject;
+  return tasks;
+}
+
+export async function showHistoryHandler(tasks, actionInfo) {
+  const selectedTask = actionInfo.selectedTask;
+  if (!selectedTask) return tasks;
+
+  console.clear();
+  p.intro(APP_TITLE);
+
+  // Find all tasks in the same sequence
+  const sequenceTasks = tasks
+    .filter(t => t.sequenceId === selectedTask.sequenceId)
+    .sort((a, b) => b.iteration - a.iteration); // Reversed sort order
+
+  // Calculate completion percentage
+  const totalTasks = sequenceTasks.length;
+  const completedTasks = sequenceTasks.filter(t => t.status === TASK_STATUS.COMPLETED).length;
+  const completionPercentage = (completedTasks / totalTasks * 100).toFixed(1);
+
+  // Display task history
+  p.log.message(`\nHistory for task: ${selectedTask.description}`);
+  p.log.message(`Project: ${selectedTask.project || 'None'}`);
+  p.log.message(`Repeat Interval: ${selectedTask.repeatInterval / (60 * 60 * 1000)} hours`);
+  p.log.message(`Completion Rate: ${completionPercentage}% (${completedTasks}/${totalTasks} repetitions completed)`);
+  p.log.message('\nRepetitions (most recent first):');
+  
+  for (const task of sequenceTasks) {
+    const status = task.status === TASK_STATUS.READY ? 'Pending' : 
+                  task.status === TASK_STATUS.COMPLETED ? 'Completed' :
+                  'Aborted';
+    
+    const date = task.completedAt ? 
+      new Date(task.completedAt).toLocaleString() :
+      new Date(task.createdAt).toLocaleString();
+    
+    const marker = task.uuid === selectedTask.uuid ? '→' : ' ';
+    
+    p.log.message(`${marker} #${task.iteration}: ${status} (${date})`);
+  }
+
+  // Wait for user acknowledgment
+  await p.text({
+    message: "Press Enter to continue"
+  });
+
   return tasks;
 }
 

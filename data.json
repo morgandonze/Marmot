@@ -5,10 +5,10 @@
     "iteration": 0,
     "description": "Foo task 1",
     "project": "Foo",
-    "status": "ready",
+    "status": "completed",
     "createdAt": 1742654369774,
-    "completedAt": null,
-    "repeatInterval": 86400000
+    "completedAt": 1742654600603,
+    "repeatInterval": 3599.9999999999995
   },
   {
     "uuid": "16e9a764-ae1e-4fa9-ae8d-ec81195a2938",
@@ -16,9 +16,113 @@
     "iteration": 0,
     "description": "Bar task 1",
     "project": "Bar",
-    "status": "ready",
+    "status": "completed",
     "createdAt": 1742654385883,
+    "completedAt": 1742654609073,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "fa98340a-803b-477d-8db8-6c899b780f78",
+    "id": 2,
+    "iteration": 1,
+    "description": "Foo task 1",
+    "project": "Foo",
+    "status": "aborted",
+    "createdAt": 1742654600603,
+    "completedAt": 1742654613992,
+    "repeatInterval": 3599.9999999999995
+  },
+  {
+    "uuid": "f7165995-da6a-4faf-b2f7-9137995e017e",
+    "id": 3,
+    "iteration": 1,
+    "description": "Bar task 1",
+    "project": "Bar",
+    "status": "ready",
+    "createdAt": 1742654609073,
     "completedAt": null,
     "repeatInterval": 86400000
+  },
+  {
+    "uuid": "358a4fa3-ece1-4512-95f8-d21560cad717",
+    "id": 4,
+    "iteration": 2,
+    "description": "Foo task 1",
+    "project": "Foo",
+    "status": "completed",
+    "createdAt": 1742654613992,
+    "completedAt": 1742654626468,
+    "repeatInterval": 3599.9999999999995
+  },
+  {
+    "uuid": "25cf907f-e3d9-408f-b2d0-a8794e5dfa7b",
+    "id": 5,
+    "iteration": 3,
+    "description": "Foo task 1",
+    "project": "Foo",
+    "status": "completed",
+    "createdAt": 1742654626468,
+    "completedAt": 1742654852674,
+    "repeatInterval": 3599.9999999999995
+  },
+  {
+    "uuid": "2b1852f3-49a3-40c9-8cf4-3c9cd561e27f",
+    "id": 6,
+    "iteration": 0,
+    "description": "Turtle",
+    "project": "Foo",
+    "status": "completed",
+    "createdAt": 1742654918720,
+    "completedAt": 1742654925935,
+    "repeatInterval": 28799.999999999996,
+    "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
+  },
+  {
+    "uuid": "bd62d680-5dbe-429c-a824-f42bb220a525",
+    "id": 7,
+    "iteration": 1,
+    "description": "Turtle",
+    "project": "Foo",
+    "status": "completed",
+    "createdAt": 1742654925935,
+    "completedAt": 1742654968939,
+    "repeatInterval": 3599.9999999999995,
+    "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
+  },
+  {
+    "uuid": "b9a795ea-6893-471f-ae0d-21f3eecbd3ad",
+    "id": 8,
+    "iteration": 2,
+    "description": "Turtle",
+    "project": "Foo",
+    "status": "completed",
+    "createdAt": 1742654968939,
+    "completedAt": 1742654977506,
+    "repeatInterval": 3599.9999999999995,
+    "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
+  },
+  {
+    "uuid": "ba15cd38-91b7-48f1-a48d-6085a32f1dd5",
+    "id": 9,
+    "iteration": 3,
+    "description": "Turtle",
+    "project": "Foo",
+    "status": "aborted",
+    "createdAt": 1742654977506,
+    "completedAt": 1742655002025,
+    "repeatInterval": 3599.9999999999995,
+    "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
+  },
+  {
+    "uuid": "2d54bccc-1b41-4d2a-aad1-2e57dd20acf6",
+    "id": 10,
+    "iteration": 4,
+    "description": "Turtle",
+    "project": "Foo",
+    "status": "ready",
+    "createdAt": 1742655002025,
+    "completedAt": null,
+    "repeatInterval": 3599.9999999999995,
+    "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
   }
 ]
