@@ -41,10 +41,6 @@ const actionsWithSelection = [
   {
     value: {action: ACTION_TYPES.SHOW_HISTORY, handler: showHistoryHandler},
     label: "[ Show History ]"
-  },
-  {
-    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: "[ Exit ]"
   }
 ];
 
