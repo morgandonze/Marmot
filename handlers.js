@@ -259,17 +259,19 @@ export async function showHistoryHandler(tasks, actionInfo) {
     .filter(t => t.sequenceId === selectedTask.sequenceId)
     .sort((a, b) => b.iteration - a.iteration); // Reversed sort order
 
-  // Calculate completion percentage
-  const totalTasks = sequenceTasks.length;
+  // Calculate completion percentage excluding pending tasks
   const completedTasks = sequenceTasks.filter(t => t.status === TASK_STATUS.COMPLETED).length;
-  const completionPercentage = (completedTasks / totalTasks * 100).toFixed(1);
+  const nonPendingTasks = sequenceTasks.filter(t => t.status !== TASK_STATUS.READY).length;
+  const completionPercentage = nonPendingTasks > 0 
+    ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+    : "0.0";
 
   // Display task history
   p.log.message(`\nHistory for task: ${selectedTask.description}`);
   p.log.message(`Project: ${selectedTask.project || 'None'}`);
   p.log.message(`Repeat Interval: ${formatTimeInterval(selectedTask.repeatInterval)}`);
   p.log.message(`Completion Rate: ${pc.yellowBright(completionPercentage + "%")}`);
-  p.log.message(`(${completedTasks}/${totalTasks} repetitions completed)`);
+  p.log.message(`(${completedTasks}/${nonPendingTasks} repetitions completed)`);
   p.log.message('\nRepetitions (most recent first):');
   
   for (const task of sequenceTasks) {
