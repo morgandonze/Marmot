@@ -119,10 +119,22 @@
     "iteration": 4,
     "description": "Turtle",
     "project": "Foo",
-    "status": "ready",
+    "status": "completed",
     "createdAt": 1742655002025,
+    "completedAt": 1742655369415,
+    "repeatInterval": 72000,
+    "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
+  },
+  {
+    "uuid": "69a0673d-3529-4384-9e1a-32c4a0d32f0b",
+    "id": 11,
+    "iteration": 5,
+    "description": "Turtle",
+    "project": "Foo",
+    "status": "ready",
+    "createdAt": 1742655369415,
     "completedAt": null,
-    "repeatInterval": 3599.9999999999995,
+    "repeatInterval": 72000,
     "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
   }
 ]

@@ -1,4 +1,5 @@
 import * as p from '@clack/prompts';
+import pc from 'picocolors';
 import { state } from './index.js';
 import { ACTION_TYPES } from './constants.js';
 import { formatTaskLabel } from './utils.js';
@@ -19,54 +20,54 @@ import {
 const actionsWithSelection = [
   {
     value: {action: ACTION_TYPES.BACK, handler: backHandler},
-    label: "> Back"
+    label: pc.cyan("[ Back ]")
   },
   {
     value: {action: ACTION_TYPES.COMPLETE_REP, handler: completeRepHandler},
-    label: "> Complete Rep"
+    label: pc.cyan("[ Complete Rep ]")
   },
   {
     value: {action: ACTION_TYPES.COMPLETE_TASK, handler: completeTaskHandler},
-    label: "> Complete Task"
+    label: pc.cyan("[ Complete Task ]")
   },
   {
     value: {action: ACTION_TYPES.ABORT_TASK, handler: abortTaskHandler},
-    label: "> Abort Task"
+    label: pc.cyan("[ Abort Task ]")
   },
   {
     value: {action: ACTION_TYPES.EDIT_TASK, handler: editTaskHandler},
-    label: "> Edit Task"
+    label: pc.cyan("[ Edit Task ]")
   },
   {
     value: {action: ACTION_TYPES.SHOW_HISTORY, handler: showHistoryHandler},
-    label: "> Show History"
+    label: pc.cyan("[ Show History ]")
   },
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: "> Exit"
+    label: pc.cyan("[ Exit ]")
   }
 ];
 
 const actionsWithoutSelection = [
   {
-    value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
-    label: "> Add Task"
-  },
-  {
     value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
     get label() {
-      return `> ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks`;
+      return pc.cyan(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
     }
   },
   {
     value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
     get label() {
-      return `> ${state.projectFilter ? 'Change' : 'Set'} Project Filter`;
+      return pc.cyan(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
     }
   },
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: "> Exit"
+    label: pc.cyan("[ Exit ]")
+  },
+  {
+    value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
+    label: pc.cyan("[ Add Task ]")
   }
 ];
 
@@ -76,7 +77,7 @@ function createTaskOption(task) {
       action: ACTION_TYPES.SELECT_TASK,
       handler: taskSelectHandler(task)
     },
-    label: `> ${formatTaskLabel(task)}`
+    label: formatTaskLabel(task)
   };
 }
 
@@ -92,9 +93,9 @@ export function getMenuActions(activeTasks) {
     return [...actionsWithSelection];
   }
   
-  // Add task selection options
+  // Add task selection options first, then menu actions
   const taskOptions = activeTasks.map(createTaskOption);
-  return [...actionsWithoutSelection, ...taskOptions];
+  return [...taskOptions, ...actionsWithoutSelection];
 }
 
 export function actionsMenu(activeTasks) {
