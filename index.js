@@ -42,10 +42,14 @@ async function main() {
 
     const now = getCurrentTimestamp();
     const activeTasks = state.tasks.filter(task => {
-      const isReady = task.status === TASK_STATUS.READY;
-      const isTimeToShow = now >= task.nextShowTime;
+      if (task.status !== TASK_STATUS.READY) return false;
       
-      return isReady && (state.showWaiting || isTimeToShow);
+      // First iterations are shown immediately
+      if (task.iteration === 0) return true;
+      
+      // For subsequent iterations, check if enough time has passed since creation
+      const nextShowTime = task.createdAt + task.repeatInterval;
+      return state.showWaiting || now >= nextShowTime;
     });
     
     // Show current display mode

@@ -21,9 +21,7 @@ export function makeNextRep(previousRep) {
     iteration: previousRep.iteration + 1,
     status: TASK_STATUS.READY,
     createdAt: now,
-    completedAt: null,
-    predecessorId: previousRep.uuid,
-    nextShowTime: previousRep.completedAt + previousRep.repeatInterval
+    completedAt: null
   };
 }
 
@@ -37,9 +35,7 @@ export function createTask(data) {
     status: TASK_STATUS.READY,
     createdAt: now,
     completedAt: null,
-    repeatInterval: DEFAULT_REPEAT_INTERVAL,
-    predecessorId: null,
-    nextShowTime: now
+    repeatInterval: data.repeatInterval || DEFAULT_REPEAT_INTERVAL
   };
 }
 
@@ -130,10 +126,29 @@ export async function addTaskHandler(tasks, actionInfo) {
     placeholder: "Enter title"
   });
 
-  if (taskTitle) {
-    const newTask = createTask({description: taskTitle});
-    tasks.push(newTask);
-  }
+  if (!taskTitle) return tasks;
+
+  const defaultHours = DEFAULT_REPEAT_INTERVAL / (60 * 60 * 1000);
+  const repeatHours = await p.text({
+    message: "Repeat interval (in hours):",
+    placeholder: defaultHours.toString(),
+    initialValue: defaultHours.toString(),
+    validate: (value) => {
+      const num = parseFloat(value);
+      if (isNaN(num) || num <= 0) {
+        return "Please enter a positive number";
+      }
+    }
+  });
+
+  if (!repeatHours) return tasks;
+
+  const repeatInterval = parseFloat(repeatHours) * 60 * 60 * 1000; // Convert hours to milliseconds
+  const newTask = createTask({
+    description: taskTitle,
+    repeatInterval: repeatInterval
+  });
+  tasks.push(newTask);
   
   return tasks;
 }
