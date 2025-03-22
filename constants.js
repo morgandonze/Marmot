@@ -1,0 +1,20 @@
+export const APP_TITLE = "[ Marmot ]";
+export const DATA_FILE = "./data.json";
+export const DEFAULT_REPEAT_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+export const TASK_STATUS = {
+  READY: "ready",
+  COMPLETED: "completed",
+  ABORTED: "aborted"
+};
+
+export const ACTION_TYPES = {
+  BACK: "Back",
+  COMPLETE_REP: "Complete Rep",
+  COMPLETE_TASK: "Complete Task",
+  ABORT_TASK: "Abort Task",
+  EDIT_TASK: "Edit Task",
+  ADD_TASK: "Add Task",
+  SELECT_TASK: "Select Task",
+  EXIT: "Exit"
+}; 

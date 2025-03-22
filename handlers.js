@@ -1,43 +1,46 @@
 import * as p from '@clack/prompts';
-import { v4 as uuidv4 } from 'uuid';
 import { state } from './index.js';
-
-const defaultRepeatInterval = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-function getNextId() {
-  return state.nextID++;
-}
+import { 
+  TASK_STATUS,
+  DEFAULT_REPEAT_INTERVAL,
+  APP_TITLE 
+} from './constants.js';
+import {
+  getCurrentTimestamp,
+  generateId,
+  findTaskById,
+  formatTaskLabel
+} from './utils.js';
 
 export function makeNextRep(previousRep) {
-  const nextRep = Object.assign({}, previousRep);
-  return Object.assign(nextRep, {
-    id: getNextId(),
-    uuid: uuidv4(),
+  return {
+    ...previousRep,
+    id: state.nextID++,
+    uuid: generateId(),
     iteration: previousRep.iteration + 1,
-    status: "ready",
-    createdAt: (new Date()).getTime(),
+    status: TASK_STATUS.READY,
+    createdAt: getCurrentTimestamp(),
     completedAt: null
-  });
+  };
 }
 
 export function createTask(data) {
-  const task = {
-    uuid: uuidv4(),
-    id: getNextId(),
+  return {
+    uuid: generateId(),
+    id: state.nextID++,
     iteration: 0,
     description: data.description,
-    status: "ready",
-    createdAt: (new Date()).getTime(),
+    status: TASK_STATUS.READY,
+    createdAt: getCurrentTimestamp(),
     completedAt: null,
-    repeatInterval: defaultRepeatInterval
+    repeatInterval: DEFAULT_REPEAT_INTERVAL
   };
-  return task;
 }
 
 export function optionsFromTasks(tasks) {
   return tasks.map(task => ({
     value: task,
-    label: task.description
+    label: formatTaskLabel(task)
   }));
 }
 
@@ -51,8 +54,8 @@ export async function completeRepHandler(tasks, actionInfo) {
     tasks.push(nextRep);
 
     Object.assign(state.currentTask, {
-      status: "completed",
-      completedAt: (new Date()).getTime()
+      status: TASK_STATUS.COMPLETED,
+      completedAt: getCurrentTimestamp()
     });
 
     state.currentTask = null;
@@ -68,8 +71,8 @@ export async function completeTaskHandler(tasks, actionInfo) {
 
   if (confirm) {
     Object.assign(state.currentTask, {
-      status: "completed",
-      completedAt: (new Date()).getTime()
+      status: TASK_STATUS.COMPLETED,
+      completedAt: getCurrentTimestamp()
     });
 
     state.currentTask = null;
@@ -89,11 +92,11 @@ export async function abortTaskHandler(tasks, actionInfo) {
     state.currentTask = null;
 
     Object.assign(selectedTask, {
-      status: "aborted",
-      completedAt: (new Date()).getTime()
+      status: TASK_STATUS.ABORTED,
+      completedAt: getCurrentTimestamp()
     });
 
-    const taskIndex = tasks.findIndex(t => t.uuid === selectedTask.uuid);
+    const taskIndex = findTaskById(tasks, selectedTask.uuid);
     if (taskIndex !== -1) {
       tasks[taskIndex] = selectedTask;
     }
@@ -108,7 +111,7 @@ export async function abortTaskHandler(tasks, actionInfo) {
 
 export async function addTaskHandler(tasks, actionInfo) {
   console.clear();
-  p.intro("[ Marmot ]");
+  p.intro(APP_TITLE);
 
   const taskTitle = await p.text({
     message: "New task:",
@@ -133,7 +136,7 @@ export async function editTaskHandler(tasks, actionInfo) {
   });
 
   if (newTitle) {
-    const taskIndex = tasks.findIndex(t => t.uuid === selectedTask.uuid);
+    const taskIndex = findTaskById(tasks, selectedTask.uuid);
     if (taskIndex !== -1) {
       tasks[taskIndex] = { ...selectedTask, description: newTitle };
     }

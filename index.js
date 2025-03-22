@@ -1,50 +1,47 @@
 import { setTimeout } from 'node:timers/promises';
 import * as p from '@clack/prompts';
 import color from 'picocolors';
-import { v4 as uuidv4 } from 'uuid';
-import { handleTask, optionsFromTasks, createTask } from './handlers.js'
-import { actionsMenu } from './actionsMenu.js'
-import * as fs from 'fs';
-
-const marmotTitle = "[ Marmot ]"
+import { handleTask } from './handlers.js';
+import { actionsMenu } from './actionsMenu.js';
+import { APP_TITLE, TASK_STATUS } from './constants.js';
+import { loadData, saveData, formatTaskLabel } from './utils.js';
 
 // Global state object
 let state = {
   nextID: 0,
   currentTask: null,
   tasks: []
-}
+};
+
+export { state };
 
 async function main() {
   // Initialize or load existing data
-  let tasks = [];
-  try {
-    const data = fs.readFileSync('./data.json', 'utf-8');
-    tasks = JSON.parse(data);
-    // Set nextID based on existing tasks
-    state.nextID = Math.max(...tasks.map(t => t.id), 0) + 1;
-  } catch (err) {
-    // If file doesn't exist, start with empty tasks
-    fs.writeFileSync('data.json', JSON.stringify([]));
-  }
-
+  const tasks = loadData();
   state.tasks = tasks;
+  
+  // Set nextID based on existing tasks
+  state.nextID = tasks.length > 0 
+    ? Math.max(...tasks.map(t => t.id)) + 1 
+    : 0;
+
   let output = {};
 
   while (output.action !== "Exit") {
     console.clear();
-    p.intro(marmotTitle);
+    p.intro(APP_TITLE);
 
     if (state.currentTask) {
       p.log.message(
-        "Current task: " +
-        state.currentTask.description +
-        " x" + state.currentTask.iteration
+        `Current task: ${formatTaskLabel(state.currentTask)}`
       );
     }
 
-    const activeTasks = state.tasks.filter((task) => task.status === "ready");
-    output = await actionsMenu(activeTasks, !!state.currentTask)();
+    const activeTasks = state.tasks.filter(
+      (task) => task.status === TASK_STATUS.READY
+    );
+    
+    output = await actionsMenu(activeTasks)();
     
     if (output && output.handler) {
       state.tasks = await output.handler(state.tasks, {
@@ -55,9 +52,7 @@ async function main() {
   }
 
   // Save state before exit
-  const tasksJson = JSON.stringify(state.tasks);
-  fs.writeFileSync('data.json', tasksJson);
+  saveData(state.tasks);
 }
 
-export { state };
 main().catch(console.error);

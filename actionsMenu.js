@@ -1,5 +1,7 @@
 import * as p from '@clack/prompts';
 import { state } from './index.js';
+import { ACTION_TYPES } from './constants.js';
+import { formatTaskLabel } from './utils.js';
 
 import {
   handleTask,
@@ -17,41 +19,51 @@ import {
 
 const actionsWithSelection = [
   {
-    value: {action: "Back", handler: backHandler},
+    value: {action: ACTION_TYPES.BACK, handler: backHandler},
     label: "> Back"
   },
   {
-    value: {action: "Complete Rep", handler: completeRepHandler},
+    value: {action: ACTION_TYPES.COMPLETE_REP, handler: completeRepHandler},
     label: "> Complete Rep"
   },
   {
-    value: {action: "Complete Task", handler: completeTaskHandler},
+    value: {action: ACTION_TYPES.COMPLETE_TASK, handler: completeTaskHandler},
     label: "> Complete Task"
   },
   {
-    value: {action: "Abort Task", handler: abortTaskHandler},
+    value: {action: ACTION_TYPES.ABORT_TASK, handler: abortTaskHandler},
     label: "> Abort Task"
   },
   {
-    value: {action: "Edit Task", handler: editTaskHandler},
+    value: {action: ACTION_TYPES.EDIT_TASK, handler: editTaskHandler},
     label: "> Edit Task"
   },
   {
-    value: {action: "Exit", handler: exitHandler},
+    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
     label: "> Exit"
   }
 ];
 
 const actionsWithoutSelection = [
   {
-    value: {action: "Add Task", handler: addTaskHandler},
+    value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
     label: "> Add Task"
   },
   {
-    value: {action: "Exit", handler: exitHandler},
+    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
     label: "> Exit"
   }
 ];
+
+function createTaskOption(task) {
+  return {
+    value: {
+      action: ACTION_TYPES.SELECT_TASK,
+      handler: taskSelectHandler(task)
+    },
+    label: `> ${formatTaskLabel(task)}`
+  };
+}
 
 function taskSelectHandler(task) {
   return async (tasks) => {
@@ -61,24 +73,16 @@ function taskSelectHandler(task) {
 }
 
 export function getMenuActions(activeTasks) {
-  let actions = [];
-  
   if (state.currentTask) {
-    actions = [...actionsWithSelection];
-  } else {
-    // Add task selection options
-    const taskOptions = activeTasks.map(task => ({
-      value: {action: "Select Task", handler: taskSelectHandler(task)},
-      label: `> ${task.description} (x${task.iteration})`
-    }));
-    
-    actions = [...actionsWithoutSelection, ...taskOptions];
+    return [...actionsWithSelection];
   }
-
-  return actions;
+  
+  // Add task selection options
+  const taskOptions = activeTasks.map(createTaskOption);
+  return [...actionsWithoutSelection, ...taskOptions];
 }
 
-export function actionsMenu(activeTasks, hasCurrentTask) {
+export function actionsMenu(activeTasks) {
   return async () => {
     const menuActions = getMenuActions(activeTasks);
     
@@ -86,7 +90,7 @@ export function actionsMenu(activeTasks, hasCurrentTask) {
     const initialValue = menuActions.length > 0 ? menuActions[0].value : null;
     
     if (!initialValue) {
-      return {action: "Exit", handler: exitHandler};
+      return {action: ACTION_TYPES.EXIT, handler: exitHandler};
     }
 
     return await p.select({
