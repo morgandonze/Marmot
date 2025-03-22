@@ -146,7 +146,7 @@
     "status": "ready",
     "createdAt": 1742656659174,
     "completedAt": null,
-    "repeatInterval": 900000,
+    "repeatInterval": 72000,
     "sequenceId": "aef0173f-4d1c-4991-91fe-a7ef56f2466a"
   }
 ]

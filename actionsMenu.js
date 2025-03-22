@@ -27,12 +27,12 @@ const actionsWithSelection = [
     label: "[ Complete Rep ]"
   },
   {
-    value: {action: ACTION_TYPES.COMPLETE_TASK, handler: completeTaskHandler},
-    label: "[ Complete Task ]"
+    value: {action: ACTION_TYPES.ABORT_TASK, handler: abortTaskHandler},
+    label: "[ Abort Rep ]"
   },
   {
-    value: {action: ACTION_TYPES.ABORT_TASK, handler: abortTaskHandler},
-    label: "[ Abort Task ]"
+    value: {action: ACTION_TYPES.COMPLETE_TASK, handler: completeTaskHandler},
+    label: "[ Complete Task ]"
   },
   {
     value: {action: ACTION_TYPES.EDIT_TASK, handler: editTaskHandler},
@@ -50,24 +50,24 @@ const actionsWithSelection = [
 
 const actionsWithoutSelection = [
   {
+    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
+    label: pc.blackBright("[ Exit ]")
+  },
+  {
     value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
     get label() {
-      return `[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`;
+      return pc.blackBright(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
     }
   },
   {
     value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
     get label() {
-      return `[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`;
+      return pc.blackBright(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
     }
   },
   {
-    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: "[ Exit ]"
-  },
-  {
     value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
-    label: "[ Add Task ]"
+    label: pc.blackBright("[ Add Task ]")
   }
 ];
 

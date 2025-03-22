@@ -12,7 +12,7 @@ export const ACTION_TYPES = {
   BACK: "Back",
   COMPLETE_REP: "Complete Rep",
   COMPLETE_TASK: "Complete Task",
-  ABORT_TASK: "Abort Task",
+  ABORT_TASK: "Abort Rep",
   EDIT_TASK: "Edit Task",
   ADD_TASK: "Add Task",
   SELECT_TASK: "Select Task",

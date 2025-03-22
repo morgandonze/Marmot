@@ -1,4 +1,5 @@
 import * as p from '@clack/prompts';
+import pc from 'picocolors';
 import { state } from './index.js';
 import { 
   TASK_STATUS,
@@ -267,7 +268,8 @@ export async function showHistoryHandler(tasks, actionInfo) {
   p.log.message(`\nHistory for task: ${selectedTask.description}`);
   p.log.message(`Project: ${selectedTask.project || 'None'}`);
   p.log.message(`Repeat Interval: ${formatTimeInterval(selectedTask.repeatInterval)}`);
-  p.log.message(`Completion Rate: ${completionPercentage}% (${completedTasks}/${totalTasks} repetitions completed)`);
+  p.log.message(`Completion Rate: ${pc.yellowBright(completionPercentage + "%")}`);
+  p.log.message(`(${completedTasks}/${totalTasks} repetitions completed)`);
   p.log.message('\nRepetitions (most recent first):');
   
   for (const task of sequenceTasks) {

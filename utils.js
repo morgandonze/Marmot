@@ -46,11 +46,16 @@ export function formatTaskLabel(task) {
   if (!task) return '';
   const now = getCurrentTimestamp();
   
+  // First iterations are shown immediately and are never waiting
+  if (task.iteration === 0) {
+    return `${task.description}${task.project ? ` [${task.project}]` : ''}`;
+  }
+  
   // For subsequent iterations, check if enough time has passed since creation
   const nextShowTime = task.createdAt + task.repeatInterval;
   if (nextShowTime > now) {
     const timeToWait = nextShowTime - now;
-    return pc.yellowBright(`${task.description}${task.project ? ` [${task.project}]` : ''} - Available in ${formatTimeInterval(timeToWait)}`);
+    return pc.cyan(`${task.description}${task.project ? ` [${task.project}]` : ''} - Available in ${formatTimeInterval(timeToWait)}`);
   }
   return `${task.description}${task.project ? ` [${task.project}]` : ''}`;
 } 

@@ -56,7 +56,7 @@ async function main() {
         if (task.project !== state.projectFilter) return false;
       }
       
-      // First iterations are shown immediately
+      // First iterations are shown immediately and are never waiting
       if (task.iteration === 0) return true;
       
       // For subsequent iterations, check if enough time has passed since creation
