@@ -8,7 +8,8 @@ let state = {
   nextID: 0,
   currentTask: null,
   tasks: [],
-  showWaiting: false
+  showWaiting: false,
+  projectFilter: null
 };
 
 export { state };
@@ -34,6 +35,7 @@ async function main() {
       const createdDate = new Date(task.createdAt).toLocaleString();
       p.log.message(`Current task details:`);
       p.log.message(`Description: ${task.description}`);
+      p.log.message(`Project: ${task.project || 'None'}`);
       p.log.message(`Iteration: ${task.iteration}`);
       p.log.message(`Status: ${task.status}`);
       p.log.message(`Created: ${createdDate}`);
@@ -42,7 +44,11 @@ async function main() {
 
     const now = getCurrentTimestamp();
     const activeTasks = state.tasks.filter(task => {
+      // Check status
       if (task.status !== TASK_STATUS.READY) return false;
+      
+      // Check project filter
+      if (state.projectFilter && task.project !== state.projectFilter) return false;
       
       // First iterations are shown immediately
       if (task.iteration === 0) return true;
@@ -52,8 +58,11 @@ async function main() {
       return state.showWaiting || now >= nextShowTime;
     });
     
-    // Show current display mode
+    // Show current filters
     p.log.message(`\nShowing ${state.showWaiting ? 'all' : 'only ready'} tasks`);
+    if (state.projectFilter) {
+      p.log.message(`Filtered to project: ${state.projectFilter}`);
+    }
     
     output = await actionsMenu(activeTasks)();
     

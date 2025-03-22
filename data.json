@@ -559,8 +559,39 @@
     "id": 51,
     "iteration": 3,
     "description": "m",
-    "status": "ready",
+    "status": "completed",
     "createdAt": 1742653776383,
+    "completedAt": 1742653913038,
+    "repeatInterval": 18000,
+    "predecessorId": null
+  },
+  {
+    "uuid": "9ace9d5f-c99d-4af2-b74a-f4e88b5adf37",
+    "id": 52,
+    "iteration": 0,
+    "description": "Foo",
+    "status": "completed",
+    "createdAt": 1742653903992,
+    "completedAt": 1742653908926,
+    "repeatInterval": 72000
+  },
+  {
+    "uuid": "f3a5fa65-7877-47fd-a8ce-6e4b626a46c6",
+    "id": 53,
+    "iteration": 1,
+    "description": "Foo",
+    "status": "ready",
+    "createdAt": 1742653908926,
+    "completedAt": null,
+    "repeatInterval": 72000
+  },
+  {
+    "uuid": "437914df-8227-4ab8-a97c-6b9127adb3b9",
+    "id": 54,
+    "iteration": 4,
+    "description": "m",
+    "status": "ready",
+    "createdAt": 1742653913038,
     "completedAt": null,
     "repeatInterval": 18000,
     "predecessorId": null

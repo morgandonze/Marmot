@@ -32,6 +32,7 @@ export function createTask(data) {
     id: state.nextID++,
     iteration: 0,
     description: data.description,
+    project: data.project || null,
     status: TASK_STATUS.READY,
     createdAt: now,
     completedAt: null,
@@ -128,6 +129,11 @@ export async function addTaskHandler(tasks, actionInfo) {
 
   if (!taskTitle) return tasks;
 
+  const project = await p.text({
+    message: "Project (optional):",
+    placeholder: "Enter project name"
+  });
+
   const defaultHours = DEFAULT_REPEAT_INTERVAL / (60 * 60 * 1000);
   const repeatHours = await p.text({
     message: "Repeat interval (in hours):",
@@ -146,6 +152,7 @@ export async function addTaskHandler(tasks, actionInfo) {
   const repeatInterval = parseFloat(repeatHours) * 60 * 60 * 1000; // Convert hours to milliseconds
   const newTask = createTask({
     description: taskTitle,
+    project: project || null,
     repeatInterval: repeatInterval
   });
   tasks.push(newTask);
@@ -168,6 +175,13 @@ export async function editTaskHandler(tasks, actionInfo) {
   });
 
   if (!newTitle) return tasks;
+
+  // Edit project
+  const newProject = await p.text({
+    message: "Project (optional):",
+    placeholder: "Enter project name",
+    initialValue: selectedTask.project || ""
+  });
 
   // Edit repeat interval
   const currentHours = selectedTask.repeatInterval / (60 * 60 * 1000);
@@ -193,12 +207,38 @@ export async function editTaskHandler(tasks, actionInfo) {
   const updatedTask = {
     ...selectedTask,
     description: newTitle,
+    project: newProject || null,
     repeatInterval: newInterval
   };
   
   tasks[taskIndex] = updatedTask;
   state.currentTask = updatedTask;
 
+  return tasks;
+}
+
+export async function filterProjectHandler(tasks) {
+  console.clear();
+  p.intro(APP_TITLE);
+
+  // Get unique projects
+  const projects = [...new Set(tasks
+    .map(t => t.project)
+    .filter(p => p !== null)
+  )].sort();
+
+  // Add options for all projects and no filter
+  const options = [
+    { value: null, label: "Show all projects" },
+    ...projects.map(p => ({ value: p, label: p }))
+  ];
+
+  const selectedProject = await p.select({
+    message: "Filter by project:",
+    options: options
+  });
+
+  state.projectFilter = selectedProject;
   return tasks;
 }
 

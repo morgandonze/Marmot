@@ -11,7 +11,8 @@ import {
   addTaskHandler,
   editTaskHandler,
   backHandler,
-  toggleWaitingHandler
+  toggleWaitingHandler,
+  filterProjectHandler
 } from './handlers.js'
 
 const actionsWithSelection = [
@@ -50,6 +51,12 @@ const actionsWithoutSelection = [
     value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
     get label() {
       return `> ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks`;
+    }
+  },
+  {
+    value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
+    get label() {
+      return `> ${state.projectFilter ? 'Change' : 'Set'} Project Filter`;
     }
   },
   {
