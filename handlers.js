@@ -9,7 +9,8 @@ import {
   getCurrentTimestamp,
   generateId,
   findTaskById,
-  formatTaskLabel
+  formatTaskLabel,
+  formatTimeInterval
 } from './utils.js';
 
 export function makeNextRep(previousRep) {
@@ -265,7 +266,7 @@ export async function showHistoryHandler(tasks, actionInfo) {
   // Display task history
   p.log.message(`\nHistory for task: ${selectedTask.description}`);
   p.log.message(`Project: ${selectedTask.project || 'None'}`);
-  p.log.message(`Repeat Interval: ${selectedTask.repeatInterval / (60 * 60 * 1000)} hours`);
+  p.log.message(`Repeat Interval: ${formatTimeInterval(selectedTask.repeatInterval)}`);
   p.log.message(`Completion Rate: ${completionPercentage}% (${completedTasks}/${totalTasks} repetitions completed)`);
   p.log.message('\nRepetitions (most recent first):');
   

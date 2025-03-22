@@ -1,7 +1,7 @@
 import * as p from '@clack/prompts';
 import { actionsMenu } from './actionsMenu.js';
 import { APP_TITLE, TASK_STATUS } from './constants.js';
-import { loadData, saveData, formatTaskLabel, getCurrentTimestamp } from './utils.js';
+import { loadData, saveData, formatTaskLabel, getCurrentTimestamp, formatTimeInterval } from './utils.js';
 
 // Global state object
 let state = {
@@ -39,7 +39,7 @@ async function main() {
       p.log.message(`Iteration: ${task.iteration}`);
       p.log.message(`Status: ${task.status}`);
       p.log.message(`Created: ${createdDate}`);
-      p.log.message(`Repeat Interval: ${task.repeatInterval / (60 * 60 * 1000)} hours`);
+      p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
     }
 
     const now = getCurrentTimestamp();

@@ -31,6 +31,16 @@ export function generateId() {
   return uuidv4();
 }
 
+export function formatTimeInterval(milliseconds) {
+  const hours = Math.floor(milliseconds / (60 * 60 * 1000));
+  const minutes = Math.floor((milliseconds % (60 * 60 * 1000)) / (60 * 1000));
+  
+  if (minutes === 0) {
+    return `${hours}h`;
+  }
+  return `${hours}h ${minutes}m`;
+}
+
 export function formatTaskLabel(task) {
   if (!task) return '';
   const now = getCurrentTimestamp();
@@ -43,8 +53,8 @@ export function formatTaskLabel(task) {
   // For subsequent iterations, check if enough time has passed since creation
   const nextShowTime = task.createdAt + task.repeatInterval;
   if (nextShowTime > now) {
-    const timeToWait = Math.ceil((nextShowTime - now) / (60 * 60 * 1000));
-    return `${task.description} (x${task.iteration})${task.project ? ` [${task.project}]` : ''} - Available in ${timeToWait} hours`;
+    const timeToWait = nextShowTime - now;
+    return `${task.description} (x${task.iteration})${task.project ? ` [${task.project}]` : ''} - Available in ${formatTimeInterval(timeToWait)}`;
   }
   return `${task.description} (x${task.iteration})${task.project ? ` [${task.project}]` : ''}`;
 } 
