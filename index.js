@@ -8,6 +8,7 @@ import * as fs from 'fs';
 
 const marmotTitle = "[ Marmot ]"
 
+// Global state object
 let state = {
   nextID: 0,
   currentTask: null,
@@ -15,32 +16,48 @@ let state = {
 }
 
 async function main() {
-  const data = fs.readFileSync('./data.json', 'utf-8');
-  let tasks = JSON.parse(data);
-  let activeTasks, taskOptions;
-  let selectedTask;
+  // Initialize or load existing data
+  let tasks = [];
+  try {
+    const data = fs.readFileSync('./data.json', 'utf-8');
+    tasks = JSON.parse(data);
+    // Set nextID based on existing tasks
+    state.nextID = Math.max(...tasks.map(t => t.id), 0) + 1;
+  } catch (err) {
+    // If file doesn't exist, start with empty tasks
+    fs.writeFileSync('data.json', JSON.stringify([]));
+  }
+
+  state.tasks = tasks;
   let output = {};
 
-  while(output.action != "Exit") {
+  while (output.action !== "Exit") {
     console.clear();
     p.intro(marmotTitle);
 
     if (state.currentTask) {
       p.log.message(
         "Current task: " +
-        currentTask.description +
-        " x" + currentTask.iteration
+        state.currentTask.description +
+        " x" + state.currentTask.iteration
       );
-    };
+    }
 
-    activeTasks = tasks.filter((task) => task.status == "ready");
+    const activeTasks = state.tasks.filter((task) => task.status === "ready");
     output = await actionsMenu(activeTasks, !!state.currentTask)();
-    console.log(output)
-    tasks = await output.handler(state.tasks, {"selectedTask": state.currentTask, "menuOutput": output});
+    
+    if (output && output.handler) {
+      state.tasks = await output.handler(state.tasks, {
+        selectedTask: state.currentTask,
+        menuOutput: output
+      });
+    }
   }
 
-  const tasksJson = JSON.stringify(tasks);
+  // Save state before exit
+  const tasksJson = JSON.stringify(state.tasks);
   fs.writeFileSync('data.json', tasksJson);
-};
+}
 
+export { state };
 main().catch(console.error);

@@ -1,3 +1,12 @@
+import * as p from '@clack/prompts';
+import { v4 as uuidv4 } from 'uuid';
+import { state } from './index.js';
+
+const defaultRepeatInterval = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+function getNextId() {
+  return state.nextID++;
+}
 
 export function makeNextRep(previousRep) {
   const nextRep = Object.assign({}, previousRep);
@@ -12,7 +21,7 @@ export function makeNextRep(previousRep) {
 }
 
 export function createTask(data) {
-  return {
+  const task = {
     uuid: uuidv4(),
     id: getNextId(),
     iteration: 0,
@@ -21,35 +30,32 @@ export function createTask(data) {
     createdAt: (new Date()).getTime(),
     completedAt: null,
     repeatInterval: defaultRepeatInterval
-  }
-
-  nextID++;
+  };
+  return task;
 }
 
 export function optionsFromTasks(tasks) {
-  return tasks.map(task => {
-    return {
-      value: task,
-      label: task.description
-    }
-  });
+  return tasks.map(task => ({
+    value: task,
+    label: task.description
+  }));
 }
 
 export async function completeRepHandler(tasks, actionInfo) {
   const confirm = await p.confirm({
     message: "Complete rep?"
-  })
+  });
 
   if (confirm) {
-    const nextRep = makeNextRep(currentTask);
+    const nextRep = makeNextRep(state.currentTask);
     tasks.push(nextRep);
 
-    Object.assign(currentTask, {
+    Object.assign(state.currentTask, {
       status: "completed",
       completedAt: (new Date()).getTime()
-    })
+    });
 
-    currentTask = null;
+    state.currentTask = null;
   }
 
   return tasks;
@@ -58,15 +64,15 @@ export async function completeRepHandler(tasks, actionInfo) {
 export async function completeTaskHandler(tasks, actionInfo) {
   const confirm = await p.confirm({
     message: "Complete task? (stops repeating)"
-  })
+  });
 
   if (confirm) {
-    Object.assign(currentTask, {
+    Object.assign(state.currentTask, {
       status: "completed",
       completedAt: (new Date()).getTime()
-    })
+    });
 
-    currentTask = null;
+    state.currentTask = null;
   }
 
   return tasks;
@@ -75,20 +81,22 @@ export async function completeTaskHandler(tasks, actionInfo) {
 export async function abortTaskHandler(tasks, actionInfo) {
   const confirm = await p.confirm({
     message: "Abort rep?"
-  })
+  });
 
   const selectedTask = actionInfo.selectedTask;
 
   if (confirm) {
-    currentTask = null;
+    state.currentTask = null;
 
     Object.assign(selectedTask, {
       status: "aborted",
       completedAt: (new Date()).getTime()
-    })
+    });
 
-    let i = tasks.indexOf(selectedTask);
-    tasks.splice(i, 1, selectedTask);
+    const taskIndex = tasks.findIndex(t => t.uuid === selectedTask.uuid);
+    if (taskIndex !== -1) {
+      tasks[taskIndex] = selectedTask;
+    }
 
     // Create next repetition
     const nextRep = makeNextRep(selectedTask);
@@ -100,34 +108,51 @@ export async function abortTaskHandler(tasks, actionInfo) {
 
 export async function addTaskHandler(tasks, actionInfo) {
   console.clear();
-  p.intro(marmotTitle);
+  p.intro("[ Marmot ]");
 
   const taskTitle = await p.text({
     message: "New task:",
     placeholder: "Enter title"
-  })
-  tasks.push(createTask({description: taskTitle}))
+  });
+
+  if (taskTitle) {
+    const newTask = createTask({description: taskTitle});
+    tasks.push(newTask);
+  }
   
   return tasks;
 }
 
 export async function editTaskHandler(tasks, actionInfo) {
-  console.log("Task edited!")
+  const selectedTask = actionInfo.selectedTask;
+  if (!selectedTask) return tasks;
+
+  const newTitle = await p.text({
+    message: "Edit task:",
+    placeholder: selectedTask.description
+  });
+
+  if (newTitle) {
+    const taskIndex = tasks.findIndex(t => t.uuid === selectedTask.uuid);
+    if (taskIndex !== -1) {
+      tasks[taskIndex] = { ...selectedTask, description: newTitle };
+    }
+  }
 
   return tasks;
 }
 
 export function backHandler(tasks) {
-  currentTask = null;
-  return tasks
-};
-
-export function exitHandler(tasks, actionInfo) {
+  state.currentTask = null;
   return tasks;
 }
 
+export function exitHandler(tasks) {
+  return tasks;
+}
 
-export function handleTask() {
-
+export function handleTask(task) {
+  state.currentTask = task;
+  return state.tasks;
 }
 
