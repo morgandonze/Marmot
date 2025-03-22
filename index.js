@@ -106,10 +106,10 @@ async function main() {
       
       p.log.message(pc.bgBlackBright(pc.black(task.description)));
       p.log.message(`Project: ${task.project || 'None'}`);
-      p.log.message(`Iteration: ${task.iteration}`);
       p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
-      p.log.message(`Created: ${createdDate}`);
       p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
+      p.log.message(`Created: ${createdDate}`);
+      p.log.message(`Iteration: ${task.iteration}`);
     }
 
     output = await actionsMenu(activeTasks)();
