@@ -33,13 +33,18 @@ export function generateId() {
 }
 
 export function formatTimeInterval(milliseconds) {
-  const hours = Math.floor(milliseconds / (60 * 60 * 1000));
+  const days = Math.floor(milliseconds / (24 * 60 * 60 * 1000));
+  const hours = Math.floor((milliseconds % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
   const minutes = Math.floor((milliseconds % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((milliseconds % (60 * 1000)) / 1000);
   
-  if (minutes === 0) {
-    return `${hours}h`;
-  }
-  return `${hours}h ${minutes}m`;
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (seconds > 0) parts.push(`${seconds}s`);
+  
+  return parts.join(' ') || '0s';
 }
 
 export function formatTaskLabel(task) {
@@ -54,10 +59,9 @@ export function formatTaskLabel(task) {
   // For subsequent iterations, check if enough time has passed since creation
   const readyTime = task.createdAt + task.repeatInterval;
   const timeSinceReady = now - readyTime;
-  
-  // Calculate percentages of the repeat interval
+  const timeToReady = readyTime - now;
   const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
-  const percentToReady = ((readyTime - now) / task.repeatInterval) * 100;
+  const percentToReady = (timeToReady / task.repeatInterval) * 100;
   
   const baseLabel = `${task.description}${task.project ? ` [${task.project}]` : ''}`;
   
@@ -69,6 +73,9 @@ export function formatTaskLabel(task) {
       return pc.magenta(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
     }
     return pc.cyan(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+  } else if (timeSinceReady >= task.repeatInterval) {
+    // Overdue (past one repeat interval)
+    return pc.red(baseLabel);
   } else if (percentSinceReady >= 60) {
     // Almost overdue (60% or more past ready time)
     return pc.yellow(baseLabel);
