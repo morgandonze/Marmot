@@ -526,10 +526,43 @@
     "id": 48,
     "iteration": 0,
     "description": "m",
-    "status": "ready",
+    "status": "completed",
     "createdAt": 1742653192104,
+    "completedAt": 1742653545032,
+    "repeatInterval": 18000,
+    "predecessorId": null
+  },
+  {
+    "uuid": "d27508cd-25bc-43d4-8dda-9658137d7632",
+    "id": 49,
+    "iteration": 1,
+    "description": "m",
+    "status": "completed",
+    "createdAt": 1742653545032,
+    "completedAt": 1742653759132,
+    "repeatInterval": 1799.9999999999998,
+    "predecessorId": null
+  },
+  {
+    "uuid": "fb639f69-9f72-4163-8c14-23eda3c62bed",
+    "id": 50,
+    "iteration": 2,
+    "description": "m",
+    "status": "completed",
+    "createdAt": 1742653759132,
+    "completedAt": 1742653776383,
+    "repeatInterval": 18000,
+    "predecessorId": null
+  },
+  {
+    "uuid": "19d155ac-838e-44e9-9156-e4b42384a433",
+    "id": 51,
+    "iteration": 3,
+    "description": "m",
+    "status": "ready",
+    "createdAt": 1742653776383,
     "completedAt": null,
-    "repeatInterval": 86400000,
+    "repeatInterval": 18000,
     "predecessorId": null
   }
 ]
