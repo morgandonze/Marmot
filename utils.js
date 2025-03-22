@@ -32,5 +32,10 @@ export function generateId() {
 
 export function formatTaskLabel(task) {
   if (!task) return '';
+  const now = getCurrentTimestamp();
+  if (task.nextShowTime > now) {
+    const timeToWait = Math.ceil((task.nextShowTime - now) / (60 * 60 * 1000));
+    return `${task.description} (x${task.iteration}) - Available in ${timeToWait} hours`;
+  }
   return `${task.description} (x${task.iteration})`;
 } 

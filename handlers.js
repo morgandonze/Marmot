@@ -13,27 +13,33 @@ import {
 } from './utils.js';
 
 export function makeNextRep(previousRep) {
+  const now = getCurrentTimestamp();
   return {
     ...previousRep,
     id: state.nextID++,
     uuid: generateId(),
     iteration: previousRep.iteration + 1,
     status: TASK_STATUS.READY,
-    createdAt: getCurrentTimestamp(),
-    completedAt: null
+    createdAt: now,
+    completedAt: null,
+    predecessorId: previousRep.uuid,
+    nextShowTime: previousRep.completedAt + previousRep.repeatInterval
   };
 }
 
 export function createTask(data) {
+  const now = getCurrentTimestamp();
   return {
     uuid: generateId(),
     id: state.nextID++,
     iteration: 0,
     description: data.description,
     status: TASK_STATUS.READY,
-    createdAt: getCurrentTimestamp(),
+    createdAt: now,
     completedAt: null,
-    repeatInterval: DEFAULT_REPEAT_INTERVAL
+    repeatInterval: DEFAULT_REPEAT_INTERVAL,
+    predecessorId: null,
+    nextShowTime: now
   };
 }
 
@@ -50,13 +56,17 @@ export async function completeRepHandler(tasks, actionInfo) {
   });
 
   if (confirm) {
-    const nextRep = makeNextRep(state.currentTask);
-    tasks.push(nextRep);
-
+    const now = getCurrentTimestamp();
+    
+    // First complete the current task
     Object.assign(state.currentTask, {
       status: TASK_STATUS.COMPLETED,
-      completedAt: getCurrentTimestamp()
+      completedAt: now
     });
+
+    // Then create the next rep with the updated completedAt time
+    const nextRep = makeNextRep(state.currentTask);
+    tasks.push(nextRep);
 
     state.currentTask = null;
   }
@@ -89,11 +99,13 @@ export async function abortTaskHandler(tasks, actionInfo) {
   const selectedTask = actionInfo.selectedTask;
 
   if (confirm) {
+    const now = getCurrentTimestamp();
+    
     state.currentTask = null;
 
     Object.assign(selectedTask, {
       status: TASK_STATUS.ABORTED,
-      completedAt: getCurrentTimestamp()
+      completedAt: now
     });
 
     const taskIndex = findTaskById(tasks, selectedTask.uuid);
@@ -101,7 +113,7 @@ export async function abortTaskHandler(tasks, actionInfo) {
       tasks[taskIndex] = selectedTask;
     }
 
-    // Create next repetition
+    // Create next repetition with the updated completedAt time
     const nextRep = makeNextRep(selectedTask);
     tasks.push(nextRep);
   }

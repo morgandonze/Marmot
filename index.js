@@ -1,7 +1,7 @@
 import * as p from '@clack/prompts';
 import { actionsMenu } from './actionsMenu.js';
 import { APP_TITLE, TASK_STATUS } from './constants.js';
-import { loadData, saveData, formatTaskLabel } from './utils.js';
+import { loadData, saveData, formatTaskLabel, getCurrentTimestamp } from './utils.js';
 
 // Global state object
 let state = {
@@ -40,7 +40,8 @@ async function main() {
     }
 
     const activeTasks = state.tasks.filter(
-      (task) => task.status === TASK_STATUS.READY
+      (task) => task.status === TASK_STATUS.READY && 
+                getCurrentTimestamp() >= task.nextShowTime
     );
     
     output = await actionsMenu(activeTasks)();
