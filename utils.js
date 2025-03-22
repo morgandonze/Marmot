@@ -31,5 +31,6 @@ export function generateId() {
 }
 
 export function formatTaskLabel(task) {
+  if (!task) return '';
   return `${task.description} (x${task.iteration})`;
 } 

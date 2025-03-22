@@ -29,9 +29,14 @@ async function main() {
     p.intro(APP_TITLE);
 
     if (state.currentTask) {
-      p.log.message(
-        `Current task: ${formatTaskLabel(state.currentTask)}`
-      );
+      const task = state.currentTask;
+      const createdDate = new Date(task.createdAt).toLocaleString();
+      p.log.message(`Current task details:`);
+      p.log.message(`Description: ${task.description}`);
+      p.log.message(`Iteration: ${task.iteration}`);
+      p.log.message(`Status: ${task.status}`);
+      p.log.message(`Created: ${createdDate}`);
+      p.log.message(`Repeat Interval: ${task.repeatInterval / (60 * 60 * 1000)} hours`);
     }
 
     const activeTasks = state.tasks.filter(
