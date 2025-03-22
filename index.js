@@ -1,4 +1,5 @@
 import * as p from '@clack/prompts';
+import pc from 'picocolors';
 import { actionsMenu } from './actionsMenu.js';
 import { APP_TITLE, TASK_STATUS } from './constants.js';
 import { loadData, saveData, formatTaskLabel, getCurrentTimestamp, formatTimeInterval } from './utils.js';
@@ -60,12 +61,14 @@ async function main() {
       return state.showWaiting || now >= readyTime || percentToReady <= 10;
     });
     
-    // Show current filters
-    p.log.message(`\nShowing ${state.showWaiting ? 'all' : 'only ready'} tasks`);
-    if (state.projectFilter === "__no_project__") {
-      p.log.message(`Filtered to tasks without projects`);
-    } else if (state.projectFilter) {
-      p.log.message(`Filtered to project: ${state.projectFilter}`);
+    // Only show filters if no task is selected
+    if (!state.currentTask) {
+      p.log.message(`\nShowing ${state.showWaiting ? 'all' : 'only ready'} tasks`);
+      if (state.projectFilter === "__no_project__") {
+        p.log.message(`Filtered to tasks without projects`);
+      } else if (state.projectFilter) {
+        p.log.message(`Filtered to project: ${state.projectFilter}`);
+      }
     }
     
     if (state.currentTask) {
@@ -101,8 +104,7 @@ async function main() {
         }
       }
       
-      p.log.message(`Current task details:`);
-      p.log.message(`Description: ${task.description}`);
+      p.log.message(pc.bgBlackBright(pc.black(task.description)));
       p.log.message(`Project: ${task.project || 'None'}`);
       p.log.message(`Iteration: ${task.iteration}`);
       p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
