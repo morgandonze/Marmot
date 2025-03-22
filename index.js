@@ -48,7 +48,13 @@ async function main() {
       if (task.status !== TASK_STATUS.READY) return false;
       
       // Check project filter
-      if (state.projectFilter && task.project !== state.projectFilter) return false;
+      if (state.projectFilter === "__no_project__") {
+        // Show only tasks with no project
+        if (task.project !== null) return false;
+      } else if (state.projectFilter !== null) {
+        // Show tasks matching specific project
+        if (task.project !== state.projectFilter) return false;
+      }
       
       // First iterations are shown immediately
       if (task.iteration === 0) return true;
@@ -60,7 +66,9 @@ async function main() {
     
     // Show current filters
     p.log.message(`\nShowing ${state.showWaiting ? 'all' : 'only ready'} tasks`);
-    if (state.projectFilter) {
+    if (state.projectFilter === "__no_project__") {
+      p.log.message(`Filtered to tasks without projects`);
+    } else if (state.projectFilter) {
       p.log.message(`Filtered to project: ${state.projectFilter}`);
     }
     

@@ -221,7 +221,7 @@ export async function filterProjectHandler(tasks) {
   console.clear();
   p.intro(APP_TITLE);
 
-  // Get unique projects
+  // Get unique projects, including tasks without projects
   const projects = [...new Set(tasks
     .map(t => t.project)
     .filter(p => p !== null)
@@ -229,8 +229,9 @@ export async function filterProjectHandler(tasks) {
 
   // Add options for all projects and no filter
   const options = [
-    { value: null, label: "Show all projects" },
-    ...projects.map(p => ({ value: p, label: p }))
+    { value: null, label: "Clear project filter" },
+    ...projects.map(p => ({ value: p, label: p })),
+    { value: "__no_project__", label: "No project" }
   ];
 
   const selectedProject = await p.select({

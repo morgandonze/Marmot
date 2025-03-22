@@ -37,14 +37,14 @@ export function formatTaskLabel(task) {
   
   // First iterations are shown immediately
   if (task.iteration === 0) {
-    return `${task.description} (x${task.iteration})`;
+    return `${task.description} (x${task.iteration})${task.project ? ` [${task.project}]` : ''}`;
   }
   
   // For subsequent iterations, check if enough time has passed since creation
   const nextShowTime = task.createdAt + task.repeatInterval;
   if (nextShowTime > now) {
     const timeToWait = Math.ceil((nextShowTime - now) / (60 * 60 * 1000));
-    return `${task.description} (x${task.iteration}) - Available in ${timeToWait} hours`;
+    return `${task.description} (x${task.iteration})${task.project ? ` [${task.project}]` : ''} - Available in ${timeToWait} hours`;
   }
-  return `${task.description} (x${task.iteration})`;
+  return `${task.description} (x${task.iteration})${task.project ? ` [${task.project}]` : ''}`;
 } 
