@@ -136,5 +136,17 @@
     "completedAt": null,
     "repeatInterval": 72000,
     "sequenceId": "7bbccefe-4769-4c1d-b1fc-7d9c58394d8b"
+  },
+  {
+    "uuid": "0a7d8d8a-b631-440b-b458-4fe15482fdc0",
+    "id": 12,
+    "iteration": 0,
+    "description": "Bar task 2",
+    "project": "Bar",
+    "status": "ready",
+    "createdAt": 1742656659174,
+    "completedAt": null,
+    "repeatInterval": 900000,
+    "sequenceId": "aef0173f-4d1c-4991-91fe-a7ef56f2466a"
   }
 ]

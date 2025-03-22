@@ -20,31 +20,31 @@ import {
 const actionsWithSelection = [
   {
     value: {action: ACTION_TYPES.BACK, handler: backHandler},
-    label: pc.cyan("[ Back ]")
+    label: "[ Back ]"
   },
   {
     value: {action: ACTION_TYPES.COMPLETE_REP, handler: completeRepHandler},
-    label: pc.cyan("[ Complete Rep ]")
+    label: "[ Complete Rep ]"
   },
   {
     value: {action: ACTION_TYPES.COMPLETE_TASK, handler: completeTaskHandler},
-    label: pc.cyan("[ Complete Task ]")
+    label: "[ Complete Task ]"
   },
   {
     value: {action: ACTION_TYPES.ABORT_TASK, handler: abortTaskHandler},
-    label: pc.cyan("[ Abort Task ]")
+    label: "[ Abort Task ]"
   },
   {
     value: {action: ACTION_TYPES.EDIT_TASK, handler: editTaskHandler},
-    label: pc.cyan("[ Edit Task ]")
+    label: "[ Edit Task ]"
   },
   {
     value: {action: ACTION_TYPES.SHOW_HISTORY, handler: showHistoryHandler},
-    label: pc.cyan("[ Show History ]")
+    label: "[ Show History ]"
   },
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: pc.cyan("[ Exit ]")
+    label: "[ Exit ]"
   }
 ];
 
@@ -52,22 +52,22 @@ const actionsWithoutSelection = [
   {
     value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
     get label() {
-      return pc.cyan(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
+      return `[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`;
     }
   },
   {
     value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
     get label() {
-      return pc.cyan(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
+      return `[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`;
     }
   },
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: pc.cyan("[ Exit ]")
+    label: "[ Exit ]"
   },
   {
     value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
-    label: pc.cyan("[ Add Task ]")
+    label: "[ Add Task ]"
   }
 ];
 
