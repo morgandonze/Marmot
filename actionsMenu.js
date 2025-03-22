@@ -10,7 +10,8 @@ import {
   abortTaskHandler,
   addTaskHandler,
   editTaskHandler,
-  backHandler
+  backHandler,
+  toggleWaitingHandler
 } from './handlers.js'
 
 const actionsWithSelection = [
@@ -44,6 +45,12 @@ const actionsWithoutSelection = [
   {
     value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
     label: "> Add Task"
+  },
+  {
+    value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
+    get label() {
+      return `> ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks`;
+    }
   },
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},

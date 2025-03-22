@@ -16,5 +16,6 @@ export const ACTION_TYPES = {
   EDIT_TASK: "Edit Task",
   ADD_TASK: "Add Task",
   SELECT_TASK: "Select Task",
+  TOGGLE_WAITING: "Toggle Waiting Tasks",
   EXIT: "Exit"
 }; 

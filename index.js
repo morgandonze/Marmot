@@ -7,7 +7,8 @@ import { loadData, saveData, formatTaskLabel, getCurrentTimestamp } from './util
 let state = {
   nextID: 0,
   currentTask: null,
-  tasks: []
+  tasks: [],
+  showWaiting: false
 };
 
 export { state };
@@ -39,10 +40,16 @@ async function main() {
       p.log.message(`Repeat Interval: ${task.repeatInterval / (60 * 60 * 1000)} hours`);
     }
 
-    const activeTasks = state.tasks.filter(
-      (task) => task.status === TASK_STATUS.READY && 
-                getCurrentTimestamp() >= task.nextShowTime
-    );
+    const now = getCurrentTimestamp();
+    const activeTasks = state.tasks.filter(task => {
+      const isReady = task.status === TASK_STATUS.READY;
+      const isTimeToShow = now >= task.nextShowTime;
+      
+      return isReady && (state.showWaiting || isTimeToShow);
+    });
+    
+    // Show current display mode
+    p.log.message(`\nShowing ${state.showWaiting ? 'all' : 'only ready'} tasks`);
     
     output = await actionsMenu(activeTasks)();
     

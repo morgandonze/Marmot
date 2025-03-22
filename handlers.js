@@ -193,6 +193,11 @@ export async function editTaskHandler(tasks, actionInfo) {
   return tasks;
 }
 
+export function toggleWaitingHandler(tasks) {
+  state.showWaiting = !state.showWaiting;
+  return tasks;
+}
+
 export function backHandler(tasks) {
   state.currentTask = null;
   return tasks;
