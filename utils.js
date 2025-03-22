@@ -65,6 +65,16 @@ export function formatTaskLabel(task) {
   
   const baseLabel = `${task.description}${task.project ? ` [${task.project}]` : ''}`;
   
+  if (!task.inProgress) {
+    if (task.successful === true) {
+      return pc.green(baseLabel);
+    } else if (task.successful === false) {
+      return pc.red(baseLabel);
+    } else {
+      return pc.yellow(baseLabel);
+    }
+  }
+  
   if (readyTime > now) {
     // Task is waiting
     const timeToWait = readyTime - now;

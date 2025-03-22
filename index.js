@@ -32,48 +32,9 @@ async function main() {
 
     const now = getCurrentTimestamp();
 
-    if (state.currentTask) {
-      const task = state.currentTask;
-      const createdDate = new Date(task.createdAt).toLocaleString();
-      
-      // Calculate timing status
-      let timingStatus = task.status;
-      let timingInfo = '';
-      if (task.status === TASK_STATUS.READY) {
-        const readyTime = task.createdAt + task.repeatInterval;
-        const timeSinceReady = now - readyTime;
-        const timeToReady = readyTime - now;
-        const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
-        const percentToReady = (timeToReady / task.repeatInterval) * 100;
-        
-        if (readyTime > now) {
-          // Task is waiting
-          timingStatus = percentToReady <= 10 ? "almost ready" : "waiting";
-          timingInfo = `Ready in ${formatTimeInterval(timeToReady)}`;
-        } else if (timeSinceReady >= task.repeatInterval) {
-          timingStatus = "overdue";
-          timingInfo = `Overdue by ${formatTimeInterval(timeSinceReady - task.repeatInterval)}`;
-        } else if (percentSinceReady >= 60) {
-          timingStatus = "almost overdue";
-          timingInfo = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
-        } else if (timeSinceReady > 0) {
-          timingStatus = "ready";
-          timingInfo = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
-        }
-      }
-      
-      p.log.message(`Current task details:`);
-      p.log.message(`Description: ${task.description}`);
-      p.log.message(`Project: ${task.project || 'None'}`);
-      p.log.message(`Iteration: ${task.iteration}`);
-      p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
-      p.log.message(`Created: ${createdDate}`);
-      p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
-    }
-
     const activeTasks = state.tasks.filter(task => {
       // Check status
-      if (task.status !== TASK_STATUS.READY) return false;
+      if (!task.inProgress) return false;
       
       // Check project filter
       if (state.projectFilter === "__no_project__") {
@@ -107,6 +68,48 @@ async function main() {
       p.log.message(`Filtered to project: ${state.projectFilter}`);
     }
     
+    if (state.currentTask) {
+      const task = state.currentTask;
+      const createdDate = new Date(task.createdAt).toLocaleString();
+      
+      // Calculate timing status
+      let timingStatus = task.inProgress ? "in progress" : 
+                        task.successful === true ? "completed (on time)" :
+                        task.successful === false ? "aborted" : "completed (late)";
+      let timingInfo = '';
+      
+      if (task.inProgress) {
+        const readyTime = task.createdAt + task.repeatInterval;
+        const timeSinceReady = now - readyTime;
+        const timeToReady = readyTime - now;
+        const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
+        const percentToReady = (timeToReady / task.repeatInterval) * 100;
+        
+        if (readyTime > now) {
+          // Task is waiting
+          timingStatus = percentToReady <= 10 ? "almost ready" : "waiting";
+          timingInfo = `Ready in ${formatTimeInterval(timeToReady)}`;
+        } else if (timeSinceReady >= task.repeatInterval) {
+          timingStatus = "overdue";
+          timingInfo = `Overdue by ${formatTimeInterval(timeSinceReady - task.repeatInterval)}`;
+        } else if (percentSinceReady >= 60) {
+          timingStatus = "almost overdue";
+          timingInfo = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
+        } else if (timeSinceReady > 0) {
+          timingStatus = "ready";
+          timingInfo = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
+        }
+      }
+      
+      p.log.message(`Current task details:`);
+      p.log.message(`Description: ${task.description}`);
+      p.log.message(`Project: ${task.project || 'None'}`);
+      p.log.message(`Iteration: ${task.iteration}`);
+      p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
+      p.log.message(`Created: ${createdDate}`);
+      p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
+    }
+
     output = await actionsMenu(activeTasks)();
     
     if (output && output.handler) {

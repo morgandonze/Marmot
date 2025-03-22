@@ -21,7 +21,8 @@ export function makeNextRep(previousRep) {
     id: state.nextID++,
     uuid: generateId(),
     iteration: previousRep.iteration + 1,
-    status: TASK_STATUS.READY,
+    inProgress: true,
+    successful: null,
     createdAt: now,
     completedAt: null,
     sequenceId: previousRep.sequenceId
@@ -36,7 +37,8 @@ export function createTask(data) {
     iteration: 0,
     description: data.description,
     project: data.project || null,
-    status: TASK_STATUS.READY,
+    inProgress: true,
+    successful: null,
     createdAt: now,
     completedAt: null,
     repeatInterval: data.repeatInterval || DEFAULT_REPEAT_INTERVAL,
@@ -58,10 +60,12 @@ export async function completeRepHandler(tasks, actionInfo) {
 
   if (confirm) {
     const now = getCurrentTimestamp();
+    const readyTime = state.currentTask.createdAt + state.currentTask.repeatInterval;
     
     // First complete the current task
     Object.assign(state.currentTask, {
-      status: TASK_STATUS.COMPLETED,
+      inProgress: false,
+      successful: now <= readyTime,
       completedAt: now
     });
 
@@ -81,9 +85,13 @@ export async function completeTaskHandler(tasks, actionInfo) {
   });
 
   if (confirm) {
+    const now = getCurrentTimestamp();
+    const readyTime = state.currentTask.createdAt + state.currentTask.repeatInterval;
+    
     Object.assign(state.currentTask, {
-      status: TASK_STATUS.COMPLETED,
-      completedAt: getCurrentTimestamp()
+      inProgress: false,
+      successful: now <= readyTime,
+      completedAt: now
     });
 
     state.currentTask = null;
@@ -105,7 +113,8 @@ export async function abortTaskHandler(tasks, actionInfo) {
     state.currentTask = null;
 
     Object.assign(selectedTask, {
-      status: TASK_STATUS.ABORTED,
+      inProgress: false,
+      successful: false,
       completedAt: now
     });
 
@@ -260,8 +269,8 @@ export async function showHistoryHandler(tasks, actionInfo) {
     .sort((a, b) => b.iteration - a.iteration); // Reversed sort order
 
   // Calculate completion percentage excluding pending tasks
-  const completedTasks = sequenceTasks.filter(t => t.status === TASK_STATUS.COMPLETED).length;
-  const nonPendingTasks = sequenceTasks.filter(t => t.status !== TASK_STATUS.READY).length;
+  const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+  const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
   const completionPercentage = nonPendingTasks > 0 
     ? (completedTasks / nonPendingTasks * 100).toFixed(1)
     : "0.0";
@@ -275,9 +284,16 @@ export async function showHistoryHandler(tasks, actionInfo) {
   p.log.message('\nRepetitions (most recent first):');
   
   for (const task of sequenceTasks) {
-    const status = task.status === TASK_STATUS.READY ? 'Pending' : 
-                  task.status === TASK_STATUS.COMPLETED ? 'Completed' :
-                  'Aborted';
+    let status;
+    if (task.inProgress) {
+      status = 'Pending';
+    } else if (task.successful === false) {
+      status = 'Aborted';
+    } else if (task.successful === true) {
+      status = 'Completed (on time)';
+    } else {
+      status = 'Completed (late)';
+    }
     
     const date = task.completedAt ? 
       new Date(task.completedAt).toLocaleString() :
