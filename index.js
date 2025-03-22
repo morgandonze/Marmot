@@ -75,6 +75,14 @@ async function main() {
       const task = state.currentTask;
       const createdDate = new Date(task.createdAt).toLocaleString();
       
+      // Calculate completion rate for the sequence
+      const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+      const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+      const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+      const completionPercentage = nonPendingTasks > 0 
+        ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+        : "0.0";
+      
       // Calculate timing status
       let timingStatus = task.inProgress ? "in progress" : 
                         task.successful === true ? "completed (on time)" :
@@ -105,11 +113,12 @@ async function main() {
       }
       
       p.log.message(pc.bgBlackBright(pc.black(task.description)));
-      p.log.message(`Project: ${task.project || 'None'}`);
-      p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
+      p.log.message(`Completion Rate: ${pc.yellowBright(completionPercentage + "%")} (${completedTasks}/${nonPendingTasks} completed)`);
       p.log.message(`Repeat Interval: ${formatTimeInterval(task.repeatInterval)}`);
-      p.log.message(`Created: ${createdDate}`);
+      p.log.message(`Status: ${timingStatus}${timingInfo ? ` (${timingInfo})` : ''}`);
       p.log.message(`Iteration: ${task.iteration}`);
+      p.log.message(`Project: ${task.project || 'None'}`);
+      p.log.message(`Created: ${createdDate}`);
     }
 
     output = await actionsMenu(activeTasks)();
