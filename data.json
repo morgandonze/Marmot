@@ -1,1 +1,92 @@
-[{"uuid":"545968e8-b729-47a4-ad1c-e5b5ee35461e","id":5,"iteration":2,"description":"t1","status":"completed","createdAt":1742571820887,"completedAt":1742574610233,"repeatInterval":86400000},{"uuid":"5d41d5f2-e849-46a3-9349-062be3810096","id":1,"iteration":0,"description":"task 4","status":"completed","createdAt":1742574599323,"completedAt":1742648952957,"repeatInterval":86400000},{"uuid":"389a4db9-b5c2-4b35-bf0e-be199c21efad","id":2,"iteration":3,"description":"Exercise (formerly t3)","status":"completed","createdAt":1742574603475,"completedAt":1742649064088,"repeatInterval":86400000},{"uuid":"a8ff5286-d66e-4259-baca-6d8b43bbffaa","id":6,"iteration":1,"description":"task 4","status":"completed","createdAt":1742648952957,"completedAt":1742648958649,"repeatInterval":86400000},{"uuid":"559aa2df-f981-4e9c-b63e-4ad0746749ba","id":7,"iteration":2,"description":"task 4","status":"completed","createdAt":1742648958649,"completedAt":1742648965298,"repeatInterval":86400000},{"uuid":"a65526ae-4c8f-4eb1-baf3-576f2abbae6f","id":8,"iteration":0,"description":"Laundry","status":"completed","createdAt":1742648976005,"completedAt":1742649067929,"repeatInterval":86400000},{"uuid":"e7b3b895-4843-44d2-9541-424c4a628502","id":9,"iteration":4,"description":"Exercise (formerly t3)","status":"ready","createdAt":1742649064088,"completedAt":null,"repeatInterval":86400000},{"uuid":"f84a6618-bd77-4f80-81bf-3cdbe2af8394","id":10,"iteration":1,"description":"Laundry","status":"ready","createdAt":1742649067929,"completedAt":null,"repeatInterval":86400000}]
+[
+  {
+    "uuid": "545968e8-b729-47a4-ad1c-e5b5ee35461e",
+    "id": 5,
+    "iteration": 2,
+    "description": "t1",
+    "status": "completed",
+    "createdAt": 1742571820887,
+    "completedAt": 1742574610233,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "5d41d5f2-e849-46a3-9349-062be3810096",
+    "id": 1,
+    "iteration": 0,
+    "description": "task 4",
+    "status": "completed",
+    "createdAt": 1742574599323,
+    "completedAt": 1742648952957,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "389a4db9-b5c2-4b35-bf0e-be199c21efad",
+    "id": 2,
+    "iteration": 3,
+    "description": "Exercise (formerly t3)",
+    "status": "completed",
+    "createdAt": 1742574603475,
+    "completedAt": 1742649064088,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "a8ff5286-d66e-4259-baca-6d8b43bbffaa",
+    "id": 6,
+    "iteration": 1,
+    "description": "task 4",
+    "status": "completed",
+    "createdAt": 1742648952957,
+    "completedAt": 1742648958649,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "559aa2df-f981-4e9c-b63e-4ad0746749ba",
+    "id": 7,
+    "iteration": 2,
+    "description": "task 4",
+    "status": "completed",
+    "createdAt": 1742648958649,
+    "completedAt": 1742648965298,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "a65526ae-4c8f-4eb1-baf3-576f2abbae6f",
+    "id": 8,
+    "iteration": 0,
+    "description": "Laundry",
+    "status": "completed",
+    "createdAt": 1742648976005,
+    "completedAt": 1742649067929,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "e7b3b895-4843-44d2-9541-424c4a628502",
+    "id": 9,
+    "iteration": 4,
+    "description": "Exercise!",
+    "status": "completed",
+    "createdAt": 1742649064088,
+    "completedAt": 1742650632811,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "f84a6618-bd77-4f80-81bf-3cdbe2af8394",
+    "id": 10,
+    "iteration": 1,
+    "description": "Laundry",
+    "status": "ready",
+    "createdAt": 1742649067929,
+    "completedAt": null,
+    "repeatInterval": 86400000
+  },
+  {
+    "uuid": "70610bb9-3aec-40b6-8207-ec40c0d910c8",
+    "id": 11,
+    "iteration": 5,
+    "description": "Exercise!",
+    "status": "ready",
+    "createdAt": 1742650632811,
+    "completedAt": null,
+    "repeatInterval": 86400000
+  }
+]

@@ -130,15 +130,51 @@ export async function editTaskHandler(tasks, actionInfo) {
   const selectedTask = actionInfo.selectedTask;
   if (!selectedTask) return tasks;
 
-  const newTitle = await p.text({
-    message: "Edit task:",
-    placeholder: selectedTask.description
+  console.clear();
+  p.intro(APP_TITLE);
+
+  const editChoice = await p.select({
+    message: "What would you like to edit?",
+    options: [
+      { value: 'description', label: 'Task Description' },
+      { value: 'interval', label: 'Repeat Interval' }
+    ]
   });
 
-  if (newTitle) {
-    const taskIndex = findTaskById(tasks, selectedTask.uuid);
-    if (taskIndex !== -1) {
-      tasks[taskIndex] = { ...selectedTask, description: newTitle };
+  if (!editChoice) return tasks;
+
+  const taskIndex = findTaskById(tasks, selectedTask.uuid);
+  if (taskIndex === -1) return tasks;
+
+  if (editChoice === 'description') {
+    const newTitle = await p.text({
+      message: "Edit task description:",
+      placeholder: selectedTask.description
+    });
+
+    if (newTitle) {
+      const updatedTask = { ...selectedTask, description: newTitle };
+      tasks[taskIndex] = updatedTask;
+      state.currentTask = updatedTask;
+    }
+  } else if (editChoice === 'interval') {
+    const currentHours = selectedTask.repeatInterval / (60 * 60 * 1000);
+    const newHours = await p.text({
+      message: "Enter new repeat interval (in hours):",
+      placeholder: currentHours.toString(),
+      validate: (value) => {
+        const num = parseFloat(value);
+        if (isNaN(num) || num <= 0) {
+          return "Please enter a positive number";
+        }
+      }
+    });
+
+    if (newHours) {
+      const newInterval = parseFloat(newHours) * 60 * 60 * 1000; // Convert hours to milliseconds
+      const updatedTask = { ...selectedTask, repeatInterval: newInterval };
+      tasks[taskIndex] = updatedTask;
+      state.currentTask = updatedTask;
     }
   }
 
