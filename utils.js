@@ -56,13 +56,6 @@ export function formatTaskLabel(task) {
     return `${task.description}${task.project ? ` [${task.project}]` : ''}`;
   }
   
-  // For subsequent iterations, check if enough time has passed since creation
-  const readyTime = task.createdAt + task.repeatInterval;
-  const timeSinceReady = now - readyTime;
-  const timeToReady = readyTime - now;
-  const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
-  const percentToReady = (timeToReady / task.repeatInterval) * 100;
-  
   const baseLabel = `${task.description}${task.project ? ` [${task.project}]` : ''}`;
   
   if (!task.inProgress) {
@@ -74,6 +67,8 @@ export function formatTaskLabel(task) {
       return pc.yellow(baseLabel);
     }
   }
+  
+  const { readyTime, timeSinceReady, timeToReady, percentToReady, percentSinceReady } = calculateTaskTimingStatus(task, now);
   
   if (readyTime > now) {
     // Task is waiting
@@ -92,4 +87,53 @@ export function formatTaskLabel(task) {
   }
   
   return baseLabel;
+}
+
+export function calculateTaskTimingStatus(task, now) {
+  const readyTime = task.createdAt + task.repeatInterval;
+  const timeSinceReady = now - readyTime;
+  const timeToReady = readyTime - now;
+  const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
+  const percentToReady = (timeToReady / task.repeatInterval) * 100;
+
+  let status = task.inProgress ? "in progress" : 
+                task.successful === true ? "completed (on time)" :
+                task.successful === false ? "aborted" : "completed (late)";
+  let info = '';
+
+  if (task.inProgress) {
+    if (readyTime > now) {
+      // Task is waiting
+      status = percentToReady <= 10 ? "almost ready" : "waiting";
+      info = `Ready in ${formatTimeInterval(timeToReady)}`;
+    } else if (timeSinceReady >= task.repeatInterval) {
+      status = "overdue";
+      info = `Overdue by ${formatTimeInterval(timeSinceReady - task.repeatInterval)}`;
+    } else if (percentSinceReady >= 60) {
+      status = "almost overdue";
+      info = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
+    } else if (timeSinceReady > 0) {
+      status = "ready";
+      info = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
+    }
+  }
+
+  return { status, info, readyTime, timeSinceReady, timeToReady, percentSinceReady, percentToReady };
+}
+
+export function getTaskDescriptionColor(task, now) {
+  if (!task.inProgress) return pc.white;
+
+  const { readyTime, timeSinceReady, percentSinceReady, percentToReady } = calculateTaskTimingStatus(task, now);
+
+  if (readyTime > now) {
+    // Task is waiting
+    return percentToReady <= 10 ? pc.magenta : pc.cyan;
+  } else if (timeSinceReady >= task.repeatInterval) {
+    return pc.red;
+  } else if (percentSinceReady >= 60) {
+    return pc.yellow;
+  }
+
+  return pc.white;
 } 

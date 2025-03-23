@@ -2,7 +2,15 @@ import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { actionsMenu } from './actionsMenu.js';
 import { APP_TITLE, TASK_STATUS } from './constants.js';
-import { loadData, saveData, formatTaskLabel, getCurrentTimestamp, formatTimeInterval } from './utils.js';
+import { 
+  loadData, 
+  saveData, 
+  formatTaskLabel, 
+  getCurrentTimestamp, 
+  formatTimeInterval,
+  calculateTaskTimingStatus,
+  getTaskDescriptionColor
+} from './utils.js';
 
 // Global state object
 let state = {
@@ -89,48 +97,11 @@ async function main() {
         ? (completedTasks / nonPendingTasks * 100).toFixed(1)
         : "0.0";
       
-      // Calculate timing status
-      let timingStatus = task.inProgress ? "in progress" : 
-                        task.successful === true ? "completed (on time)" :
-                        task.successful === false ? "aborted" : "completed (late)";
-      let timingInfo = '';
+      // Calculate timing status using utility function
+      const { status: timingStatus, info: timingInfo } = calculateTaskTimingStatus(task, now);
       
-      // Calculate timing variables for both status and color
-      const readyTime = task.createdAt + task.repeatInterval;
-      const timeSinceReady = now - readyTime;
-      const timeToReady = readyTime - now;
-      const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;
-      const percentToReady = (timeToReady / task.repeatInterval) * 100;
-      
-      if (task.inProgress) {
-        if (readyTime > now) {
-          // Task is waiting
-          timingStatus = percentToReady <= 10 ? "almost ready" : "waiting";
-          timingInfo = `Ready in ${formatTimeInterval(timeToReady)}`;
-        } else if (timeSinceReady >= task.repeatInterval) {
-          timingStatus = "overdue";
-          timingInfo = `Overdue by ${formatTimeInterval(timeSinceReady - task.repeatInterval)}`;
-        } else if (percentSinceReady >= 60) {
-          timingStatus = "almost overdue";
-          timingInfo = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
-        } else if (timeSinceReady > 0) {
-          timingStatus = "ready";
-          timingInfo = `Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`;
-        }
-      }
-      
-      // Color the description based on status
-      let descriptionColor = pc.white;
-      if (task.inProgress) {
-        if (readyTime > now) {
-          // Task is waiting
-          descriptionColor = percentToReady <= 10 ? pc.magenta : pc.cyan;
-        } else if (timeSinceReady >= task.repeatInterval) {
-          descriptionColor = pc.red;
-        } else if (percentSinceReady >= 60) {
-          descriptionColor = pc.yellow;
-        }
-      }
+      // Get description color using utility function
+      const descriptionColor = getTaskDescriptionColor(task, now);
       
       p.log.message(descriptionColor(`${task.description}${task.project ? ` [${task.project}]` : ''}`));
       p.log.message(`Completion Rate: ${pc.yellowBright(completionPercentage + "%")} (${completedTasks}/${nonPendingTasks} completed)`);
