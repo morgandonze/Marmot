@@ -67,9 +67,6 @@ export function formatTaskLabel(task) {
       : "0.0";
     
     const details = [];
-    if (readyTime > now) {
-      details.push(`Ready in ${formatTimeInterval(timeToReady)}`);
-    }
     const dueTime = readyTime + task.repeatInterval;
     const timeToDue = dueTime - now;
     if (timeToDue > 0) {
@@ -202,7 +199,9 @@ export function formatTaskLabel(task) {
 }
 
 export function calculateTaskTimingStatus(task, now) {
-  const readyTime = task.createdAt + task.repeatInterval;
+  // For iteration 0, ready time is the creation time
+  // For other iterations, ready time is creation time + repeat interval
+  const readyTime = task.iteration === 0 ? task.createdAt : task.createdAt + task.repeatInterval;
   const timeSinceReady = now - readyTime;
   const timeToReady = readyTime - now;
   const percentSinceReady = (timeSinceReady / task.repeatInterval) * 100;

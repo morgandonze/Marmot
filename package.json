@@ -1,12 +1,13 @@
 {
-  "name": "marmot",
-  "version": "1.0.0",
+  "name": "marmot-donze",
+  "version": "1.0.1",
   "description": "Task manager",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": "./index.js",
   "author": "Morgan Donze",
   "license": "ISC",
   "dependencies": {
