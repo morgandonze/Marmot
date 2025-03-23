@@ -281,18 +281,17 @@ export async function showHistoryHandler(tasks, actionInfo) {
   p.log.message(`Repeat Interval: ${formatTimeInterval(selectedTask.repeatInterval)}`);
   p.log.message(`Completion Rate: ${pc.yellowBright(completionPercentage + "%")}`);
   p.log.message(`(${completedTasks}/${nonPendingTasks} repetitions completed)`);
-  p.log.message('\nRepetitions (most recent first):');
+  p.log.message('\nMost recent repetitions:');
   
-  for (const task of sequenceTasks) {
+  // Display only the 8 most recent entries
+  for (const task of sequenceTasks.slice(0, 8)) {
     let status;
     if (task.inProgress) {
       status = 'Pending';
     } else if (task.successful === false) {
-      status = 'Aborted';
+      status = 'Failed';
     } else if (task.successful === true) {
-      status = 'Completed (on time)';
-    } else {
-      status = 'Completed (late)';
+      status = 'Success';
     }
     
     const date = task.completedAt ? 
@@ -302,6 +301,11 @@ export async function showHistoryHandler(tasks, actionInfo) {
     const marker = task.uuid === selectedTask.uuid ? '→' : ' ';
     
     p.log.message(`${marker} #${task.iteration}: ${status} (${date})`);
+  }
+
+  // If there are more entries, show a count
+  if (sequenceTasks.length > 8) {
+    p.log.message(`\n... and ${sequenceTasks.length - 8} more entries`);
   }
 
   // Wait for user acknowledgment
