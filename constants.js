@@ -1,5 +1,12 @@
-export const APP_TITLE = "[ Marmot ]";
-export const DATA_FILE = "./data.json";
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export const APP_TITLE = "Marmot";
+export const DATA_FILE = join(__dirname, 'data.json');
+export const SETTINGS_FILE = join(__dirname, 'settings.json');
 export const DEFAULT_REPEAT_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 export const TASK_STATUS = {

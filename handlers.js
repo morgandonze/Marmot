@@ -1,37 +1,33 @@
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { state } from './index.js';
+import { ACTION_TYPES, TASK_STATUS, DEFAULT_REPEAT_INTERVAL, APP_TITLE } from './constants.js';
 import { 
-  TASK_STATUS,
-  DEFAULT_REPEAT_INTERVAL,
-  APP_TITLE,
-  ACTION_TYPES
-} from './constants.js';
-import {
-  getCurrentTimestamp,
-  generateId,
-  findTaskById,
-  formatTaskLabel,
+  formatTaskLabel, 
+  generateId, 
+  getCurrentTimestamp, 
+  findTaskById, 
+  makeNextRep, 
+  saveData,
   formatTimeInterval,
   calculateTaskTimingStatus,
-  getTaskDescriptionColor,
-  makeNextRep,
-  saveData
+  getTaskDescriptionColor
 } from './utils.js';
+import { saveSettings } from './settings.js';
 
 export function createTask(data) {
   const now = getCurrentTimestamp();
   return {
-    uuid: generateId(),
     id: state.nextID++,
-    iteration: 0,
+    uuid: generateId(),
     description: data.description,
-    project: data.project || null,
+    project: data.project,
+    repeatInterval: data.repeatInterval,
+    iteration: 0,
     inProgress: true,
     successful: null,
     createdAt: now,
     completedAt: null,
-    repeatInterval: data.repeatInterval || DEFAULT_REPEAT_INTERVAL,
     sequenceId: generateId()
   };
 }
@@ -44,79 +40,71 @@ export function optionsFromTasks(tasks) {
 }
 
 export async function completeRepHandler(tasks, actionInfo) {
-  const confirm = await p.confirm({
-    message: "Complete rep?"
-  });
+  const selectedTask = actionInfo.selectedTask;
+  if (!selectedTask) return tasks;
 
-  if (confirm) {
-    const now = getCurrentTimestamp();
-    const readyTime = state.currentTask.createdAt + state.currentTask.repeatInterval;
-    
-    // First complete the current task
-    Object.assign(state.currentTask, {
-      inProgress: false,
-      successful: now <= readyTime,
-      completedAt: now
-    });
+  const now = getCurrentTimestamp();
+  const taskIndex = findTaskById(tasks, selectedTask.uuid);
+  if (taskIndex === -1) return tasks;
 
-    // Then create the next rep with the updated completedAt time
-    const nextRep = makeNextRep(state.currentTask);
-    tasks.push(nextRep);
+  // Mark current rep as completed
+  tasks[taskIndex] = {
+    ...selectedTask,
+    inProgress: false,
+    successful: true,
+    completedAt: now
+  };
 
-    state.currentTask = null;
-  }
+  // Create next rep
+  const nextRep = makeNextRep(tasks[taskIndex]);
+  tasks.push(nextRep);
+
+  // Update current task to next rep
+  state.currentTask = nextRep;
 
   return tasks;
 }
 
 export async function completeTaskHandler(tasks, actionInfo) {
-  const confirm = await p.confirm({
-    message: "Complete task? (stops repeating)"
-  });
+  const selectedTask = actionInfo.selectedTask;
+  if (!selectedTask) return tasks;
 
-  if (confirm) {
-    const now = getCurrentTimestamp();
-    const readyTime = state.currentTask.createdAt + state.currentTask.repeatInterval;
-    
-    Object.assign(state.currentTask, {
-      inProgress: false,
-      successful: now <= readyTime,
-      completedAt: now
-    });
+  const now = getCurrentTimestamp();
+  const taskIndex = findTaskById(tasks, selectedTask.uuid);
+  if (taskIndex === -1) return tasks;
 
-    state.currentTask = null;
-  }
+  // Mark current rep as completed
+  tasks[taskIndex] = {
+    ...selectedTask,
+    inProgress: false,
+    successful: true,
+    completedAt: now
+  };
+
+  // Clear current task
+  state.currentTask = null;
 
   return tasks;
 }
 
 export async function abortTaskHandler(tasks, actionInfo) {
-  const confirm = await p.confirm({
-    message: "Abort rep?"
-  });
-
   const selectedTask = actionInfo.selectedTask;
+  if (!selectedTask) return tasks;
 
-  if (confirm) {
-    const now = getCurrentTimestamp();
-    
-    state.currentTask = null;
+  const now = getCurrentTimestamp();
+  const taskIndex = findTaskById(tasks, selectedTask.uuid);
+  if (taskIndex === -1) return tasks;
 
-    Object.assign(selectedTask, {
-      inProgress: false,
-      successful: false,
-      completedAt: now
-    });
+  // Mark current rep as aborted
+  tasks[taskIndex] = {
+    ...selectedTask,
+    inProgress: false,
+    successful: false,
+    completedAt: now
+  };
 
-    const taskIndex = findTaskById(tasks, selectedTask.uuid);
-    if (taskIndex !== -1) {
-      tasks[taskIndex] = selectedTask;
-    }
-
-    // Create next repetition with the updated completedAt time
-    const nextRep = makeNextRep(selectedTask);
-    tasks.push(nextRep);
-  }
+  // Clear current task
+  state.currentTask = null;
 
   return tasks;
 }
@@ -244,6 +232,8 @@ export async function filterProjectHandler(tasks) {
   });
 
   state.projectFilter = selectedProject;
+  const { nextID, currentTask, tasks: _, ...settings } = state;
+  saveSettings(settings);
   return tasks;
 }
 
@@ -302,6 +292,8 @@ export async function showHistoryHandler(tasks, actionInfo) {
 
 export function toggleWaitingHandler(tasks) {
   state.showWaiting = !state.showWaiting;
+  const { nextID, currentTask, tasks: _, ...settings } = state;
+  saveSettings(settings);
   return tasks;
 }
 
@@ -310,7 +302,8 @@ export function backHandler(tasks) {
   return tasks;
 }
 
-export function exitHandler(tasks) {
+export async function exitHandler(tasks) {
+  saveData(tasks);
   return tasks;
 }
 
@@ -321,7 +314,8 @@ export function handleTask(task) {
 
 export function toggleDetailedInfoHandler(tasks) {
   state.showDetailedInfo = !state.showDetailedInfo;
-  saveData(tasks);
+  const { nextID, currentTask, tasks: _, ...settings } = state;
+  saveSettings(settings);
   return tasks;
 }
 

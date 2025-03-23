@@ -18,10 +18,10 @@
     "iteration": 1,
     "description": "Test task 1",
     "project": "Test",
-    "inProgress": true,
-    "successful": null,
+    "inProgress": false,
+    "successful": true,
     "createdAt": 1742693541786,
-    "completedAt": null,
+    "completedAt": 1742694367165,
     "repeatInterval": 43199.99999999999,
     "sequenceId": "2185408d-d7ea-45bc-a98b-b2574bb44874"
   },
@@ -50,5 +50,18 @@
     "completedAt": null,
     "repeatInterval": 360000,
     "sequenceId": "5d6cc3ac-6556-4e5f-815d-9cb7c594ec2c"
+  },
+  {
+    "uuid": "34613bde-2cd3-4544-bce3-675ddb332682",
+    "id": 4,
+    "iteration": 2,
+    "description": "Test task 1",
+    "project": "Test",
+    "inProgress": true,
+    "successful": null,
+    "createdAt": 1742694367166,
+    "completedAt": null,
+    "repeatInterval": 43199.99999999999,
+    "sequenceId": "2185408d-d7ea-45bc-a98b-b2574bb44874"
   }
 ]

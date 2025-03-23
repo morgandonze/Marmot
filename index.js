@@ -11,14 +11,14 @@ import {
   calculateTaskTimingStatus,
   getTaskDescriptionColor
 } from './utils.js';
+import { loadSettings, saveSettings } from './settings.js';
 
 // Global state object
 let state = {
   nextID: 0,
   currentTask: null,
   tasks: [],
-  showWaiting: false,
-  projectFilter: null
+  ...loadSettings()
 };
 
 export { state };
@@ -117,11 +117,12 @@ async function main() {
         selectedTask: state.currentTask,
         menuOutput: output
       });
+      
+      // Save settings after any handler that might modify them
+      const { nextID, currentTask, tasks: _, ...settings } = state;
+      saveSettings(settings);
     }
   }
-
-  // Save state before exit
-  saveData(state.tasks);
 }
 
 main().catch(console.error);
