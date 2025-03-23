@@ -325,28 +325,52 @@ export function toggleDetailedInfoHandler(tasks) {
   return tasks;
 }
 
+export async function settingsMenuHandler(tasks) {
+  const settingsOptions = [
+    {
+      value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
+      get label() {
+        return pc.blackBright(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
+      }
+    },
+    {
+      value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
+      get label() {
+        return pc.blackBright(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
+      }
+    },
+    {
+      value: {action: ACTION_TYPES.TOGGLE_DETAILED_INFO, handler: toggleDetailedInfoHandler},
+      get label() {
+        return pc.blackBright(`[ ${state.showDetailedInfo ? 'Hide' : 'Show'} Detailed Info ]`);
+      }
+    },
+    {
+      value: {action: ACTION_TYPES.BACK, handler: backHandler},
+      label: pc.blackBright("[ Back ]")
+    }
+  ];
+
+  const result = await p.select({
+    message: "Settings:",
+    options: settingsOptions
+  });
+
+  if (result.action === ACTION_TYPES.BACK) {
+    return tasks;
+  }
+
+  return await result.handler(tasks);
+}
+
 export const actionsWithoutSelection = [
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
     label: pc.blackBright("[ Exit ]")
   },
   {
-    value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
-    get label() {
-      return pc.blackBright(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
-    }
-  },
-  {
-    value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
-    get label() {
-      return pc.blackBright(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
-    }
-  },
-  {
-    value: {action: ACTION_TYPES.TOGGLE_DETAILED_INFO, handler: toggleDetailedInfoHandler},
-    get label() {
-      return pc.blackBright(`[ ${state.showDetailedInfo ? 'Hide' : 'Show'} Detailed Info ]`);
-    }
+    value: {action: ACTION_TYPES.SETTINGS, handler: settingsMenuHandler},
+    label: pc.blackBright("[ Settings ]")
   },
   {
     value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},

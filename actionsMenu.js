@@ -14,6 +14,7 @@ import {
   toggleWaitingHandler,
   filterProjectHandler,
   showHistoryHandler,
+  settingsMenuHandler,
   actionsWithoutSelection
 } from './handlers.js'
 
