@@ -70,10 +70,12 @@ export function formatTaskLabel(task) {
     if (readyTime > now) {
       details.push(`Ready in ${formatTimeInterval(timeToReady)}`);
     }
-    if (timeSinceReady > 0) {
-      details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
-    } else if (timeSinceReady < 0) {
-      details.push(`Overdue by ${formatTimeInterval(-timeSinceReady)}`);
+    const dueTime = readyTime + task.repeatInterval;
+    const timeToDue = dueTime - now;
+    if (timeToDue > 0) {
+      details.push(`Due in ${formatTimeInterval(timeToDue)}`);
+    } else {
+      details.push(`Overdue by ${formatTimeInterval(-timeToDue)}`);
     }
     details.push(pc.yellowBright(`${completionPercentage}%`));
     
@@ -99,7 +101,7 @@ export function formatTaskLabel(task) {
     const timeToWait = readyTime - now;
     if (percentToReady <= 10) {
       // Almost ready (within 10% of ready time)
-      const base = pc.magenta(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+      const base = pc.magenta(baseLabel);
       if (!state.showDetailedInfo) return base;
       
       const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
@@ -111,11 +113,14 @@ export function formatTaskLabel(task) {
       
       const details = [];
       details.push(`Ready in ${formatTimeInterval(timeToWait)}`);
+      const dueTime = readyTime + task.repeatInterval;
+      const timeToDue = dueTime - now;
+      details.push(`Due in ${formatTimeInterval(timeToDue)}`);
       details.push(pc.yellowBright(`${completionPercentage}%`));
       
       return `${base} | ${details.join(' | ')}`;
     }
-    const base = pc.cyan(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+    const base = pc.cyan(baseLabel);
     if (!state.showDetailedInfo) return base;
     
     const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
@@ -127,6 +132,9 @@ export function formatTaskLabel(task) {
     
     const details = [];
     details.push(`Ready in ${formatTimeInterval(timeToWait)}`);
+    const dueTime = readyTime + task.repeatInterval;
+    const timeToDue = dueTime - now;
+    details.push(`Due in ${formatTimeInterval(timeToDue)}`);
     details.push(pc.yellowBright(`${completionPercentage}%`));
     
     return `${base} | ${details.join(' | ')}`;
@@ -143,7 +151,9 @@ export function formatTaskLabel(task) {
       : "0.0";
     
     const details = [];
-    details.push(`Overdue by ${formatTimeInterval(timeSinceReady - task.repeatInterval)}`);
+    const dueTime = readyTime + task.repeatInterval;
+    const timeToDue = dueTime - now;
+    details.push(`Overdue by ${formatTimeInterval(-timeToDue)}`);
     details.push(pc.yellowBright(`${completionPercentage}%`));
     
     return `${base} | ${details.join(' | ')}`;
@@ -160,7 +170,9 @@ export function formatTaskLabel(task) {
       : "0.0";
     
     const details = [];
-    details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
+    const dueTime = readyTime + task.repeatInterval;
+    const timeToDue = dueTime - now;
+    details.push(`Due in ${formatTimeInterval(timeToDue)}`);
     details.push(pc.yellowBright(`${completionPercentage}%`));
     
     return `${base} | ${details.join(' | ')}`;
@@ -177,10 +189,12 @@ export function formatTaskLabel(task) {
     : "0.0";
 
   const details = [];
-  if (timeSinceReady > 0) {
-    details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
-  } else if (timeSinceReady < 0) {
-    details.push(`Overdue by ${formatTimeInterval(-timeSinceReady)}`);
+  const dueTime = readyTime + task.repeatInterval;
+  const timeToDue = dueTime - now;
+  if (timeToDue > 0) {
+    details.push(`Due in ${formatTimeInterval(timeToDue)}`);
+  } else {
+    details.push(`Overdue by ${formatTimeInterval(-timeToDue)}`);
   }
   details.push(pc.yellowBright(`${completionPercentage}%`));
   
