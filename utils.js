@@ -9,35 +9,18 @@ export function getCurrentTimestamp() {
 }
 
 export function saveData(data) {
-  const jsonData = JSON.stringify({
-    tasks: data,
-    settings: {
-      showWaiting: state.showWaiting,
-      projectFilter: state.projectFilter
-    }
-  }, null, 2);
+  const jsonData = JSON.stringify(data, null, 2);
   fs.writeFileSync(DATA_FILE, jsonData);
 }
 
 export function loadData() {
   try {
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
-    const parsed = JSON.parse(data);
-    
-    // Handle legacy data format (just tasks array)
-    if (Array.isArray(parsed)) {
-      return parsed;
-    }
-    
-    // Handle new data format with settings
-    if (parsed.settings) {
-      state.showWaiting = parsed.settings.showWaiting;
-      state.projectFilter = parsed.settings.projectFilter;
-    }
-    
-    return parsed.tasks || [];
+    const parsedData = JSON.parse(data);
+    // Ensure we return an array even if the file contains invalid data
+    return Array.isArray(parsedData) ? parsedData : [];
   } catch (err) {
-    // If file doesn't exist, create it with empty data
+    // If file doesn't exist or contains invalid JSON, create it with empty data
     saveData([]);
     return [];
   }
@@ -72,7 +55,29 @@ export function formatTaskLabel(task) {
   
   // First iterations are shown immediately and are never waiting
   if (task.iteration === 0) {
-    return `${task.description}${task.project ? ` [${task.project}]` : ''}`;
+    const baseLabel = `${task.description}${task.project ? ` [${task.project}]` : ''}`;
+    if (!state.showDetailedInfo) return baseLabel;
+    
+    const { readyTime, timeSinceReady, timeToReady, percentSinceReady } = calculateTaskTimingStatus(task, now);
+    const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+    const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+    const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+    const completionPercentage = nonPendingTasks > 0 
+      ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+      : "0.0";
+    
+    const details = [];
+    if (readyTime > now) {
+      details.push(`Ready in ${formatTimeInterval(timeToReady)}`);
+    }
+    if (timeSinceReady > 0) {
+      details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
+    } else if (timeSinceReady < 0) {
+      details.push(`Overdue by ${formatTimeInterval(-timeSinceReady)}`);
+    }
+    details.push(pc.yellowBright(`${completionPercentage}%`));
+    
+    return `${baseLabel} | ${details.join(' | ')}`;
   }
   
   const baseLabel = `${task.description}${task.project ? ` [${task.project}]` : ''}`;
@@ -105,7 +110,24 @@ export function formatTaskLabel(task) {
     return pc.yellow(baseLabel);
   }
   
-  return baseLabel;
+  if (!state.showDetailedInfo) return baseLabel;
+  
+  const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+  const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+  const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+  const completionPercentage = nonPendingTasks > 0 
+    ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+    : "0.0";
+  
+  const details = [];
+  if (timeSinceReady > 0) {
+    details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
+  } else if (timeSinceReady < 0) {
+    details.push(`Overdue by ${formatTimeInterval(-timeSinceReady)}`);
+  }
+  details.push(pc.yellowBright(`${completionPercentage}%`));
+  
+  return `${baseLabel} | ${details.join(' | ')}`;
 }
 
 export function calculateTaskTimingStatus(task, now) {

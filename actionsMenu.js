@@ -3,7 +3,6 @@ import pc from 'picocolors';
 import { state } from './index.js';
 import { ACTION_TYPES } from './constants.js';
 import { formatTaskLabel } from './utils.js';
-
 import {
   exitHandler,
   completeRepHandler,
@@ -14,7 +13,8 @@ import {
   backHandler,
   toggleWaitingHandler,
   filterProjectHandler,
-  showHistoryHandler
+  showHistoryHandler,
+  actionsWithoutSelection
 } from './handlers.js'
 
 const actionsWithSelection = [
@@ -41,29 +41,6 @@ const actionsWithSelection = [
   {
     value: {action: ACTION_TYPES.SHOW_HISTORY, handler: showHistoryHandler},
     label: "[ Show History ]"
-  }
-];
-
-const actionsWithoutSelection = [
-  {
-    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: pc.blackBright("[ Exit ]")
-  },
-  {
-    value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
-    get label() {
-      return pc.blackBright(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
-    }
-  },
-  {
-    value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
-    get label() {
-      return pc.blackBright(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
-    }
-  },
-  {
-    value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
-    label: pc.blackBright("[ Add Task ]")
   }
 ];
 

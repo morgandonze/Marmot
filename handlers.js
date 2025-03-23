@@ -4,7 +4,8 @@ import { state } from './index.js';
 import { 
   TASK_STATUS,
   DEFAULT_REPEAT_INTERVAL,
-  APP_TITLE 
+  APP_TITLE,
+  ACTION_TYPES
 } from './constants.js';
 import {
   getCurrentTimestamp,
@@ -243,7 +244,6 @@ export async function filterProjectHandler(tasks) {
   });
 
   state.projectFilter = selectedProject;
-  saveData(tasks);
   return tasks;
 }
 
@@ -302,7 +302,6 @@ export async function showHistoryHandler(tasks, actionInfo) {
 
 export function toggleWaitingHandler(tasks) {
   state.showWaiting = !state.showWaiting;
-  saveData(tasks);
   return tasks;
 }
 
@@ -319,4 +318,39 @@ export function handleTask(task) {
   state.currentTask = task;
   return state.tasks;
 }
+
+export function toggleDetailedInfoHandler(tasks) {
+  state.showDetailedInfo = !state.showDetailedInfo;
+  saveData(tasks);
+  return tasks;
+}
+
+export const actionsWithoutSelection = [
+  {
+    value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
+    label: pc.blackBright("[ Exit ]")
+  },
+  {
+    value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
+    get label() {
+      return pc.blackBright(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
+    }
+  },
+  {
+    value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
+    get label() {
+      return pc.blackBright(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
+    }
+  },
+  {
+    value: {action: ACTION_TYPES.TOGGLE_DETAILED_INFO, handler: toggleDetailedInfoHandler},
+    get label() {
+      return pc.blackBright(`[ ${state.showDetailedInfo ? 'Hide' : 'Show'} Detailed Info ]`);
+    }
+  },
+  {
+    value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
+    label: pc.blackBright("[ Add Task ]")
+  }
+];
 
