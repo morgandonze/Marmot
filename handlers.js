@@ -144,7 +144,8 @@ export async function addTaskHandler(tasks, actionInfo) {
 
   const project = await p.text({
     message: "Project (optional):",
-    placeholder: "Enter project name"
+    placeholder: state.projectFilter || "Enter project name",
+    initialValue: state.projectFilter || ""
   });
 
   const defaultHours = DEFAULT_REPEAT_INTERVAL / (60 * 60 * 1000);
@@ -285,22 +286,15 @@ export async function showHistoryHandler(tasks, actionInfo) {
   
   // Display only the 8 most recent entries
   for (const task of sequenceTasks.slice(0, 8)) {
-    let status;
-    if (task.inProgress) {
-      status = 'Pending';
-    } else if (task.successful === false) {
-      status = 'Failed';
-    } else if (task.successful === true) {
-      status = 'Success';
-    }
-    
     const date = task.completedAt ? 
-      new Date(task.completedAt).toLocaleString() :
-      new Date(task.createdAt).toLocaleString();
-    
-    const marker = task.uuid === selectedTask.uuid ? '→' : ' ';
-    
-    p.log.message(`${marker} #${task.iteration}: ${status} (${date})`);
+      pc.gray(new Date(task.completedAt).toLocaleString()) : 
+      pc.gray('Not completed');
+    const status = task.successful === true ? 
+      pc.green('Success') : 
+      task.successful === false ? 
+        pc.red('Failed') : 
+        pc.gray('Pending');
+    p.log.message(`#${task.iteration} - ${date} - ${status}`);
   }
 
   // If there are more entries, show a count

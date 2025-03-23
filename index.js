@@ -33,18 +33,24 @@ async function main() {
 
     const now = getCurrentTimestamp();
 
-    const activeTasks = state.tasks.filter(task => {
+    // Sort tasks by ready time
+    const sortedTasks = tasks
+      .filter(task => {
+        if (state.projectFilter === null) return true;
+        if (state.projectFilter === "__no_project__") return !task.project;
+        return task.project === state.projectFilter;
+      })
+      .sort((a, b) => {
+        const aReadyTime = a.createdAt + a.repeatInterval;
+        const bReadyTime = b.createdAt + b.repeatInterval;
+        const aTimeUntilDue = aReadyTime - now;
+        const bTimeUntilDue = bReadyTime - now;
+        return aTimeUntilDue - bTimeUntilDue;
+      });
+    
+    const activeTasks = sortedTasks.filter(task => {
       // Check status
       if (!task.inProgress) return false;
-      
-      // Check project filter
-      if (state.projectFilter === "__no_project__") {
-        // Show only tasks with no project
-        if (task.project !== null) return false;
-      } else if (state.projectFilter !== null) {
-        // Show tasks matching specific project
-        if (task.project !== state.projectFilter) return false;
-      }
       
       // First iterations are shown immediately and are never waiting
       if (task.iteration === 0) return true;
