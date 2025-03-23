@@ -328,24 +328,24 @@ export async function settingsMenuHandler(tasks) {
     {
       value: {action: ACTION_TYPES.TOGGLE_WAITING, handler: toggleWaitingHandler},
       get label() {
-        return pc.blackBright(`[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`);
+        return `[ ${state.showWaiting ? 'Hide' : 'Show'} Waiting Tasks ]`;
       }
     },
     {
       value: {action: ACTION_TYPES.FILTER_PROJECT, handler: filterProjectHandler},
       get label() {
-        return pc.blackBright(`[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`);
+        return `[ ${state.projectFilter ? 'Change' : 'Set'} Project Filter ]`;
       }
     },
     {
       value: {action: ACTION_TYPES.TOGGLE_DETAILED_INFO, handler: toggleDetailedInfoHandler},
       get label() {
-        return pc.blackBright(`[ ${state.showDetailedInfo ? 'Hide' : 'Show'} Detailed Info ]`);
+        return `[ ${state.showDetailedInfo ? 'Hide' : 'Show'} Detailed Info ]`;
       }
     },
     {
       value: {action: ACTION_TYPES.BACK, handler: backHandler},
-      label: pc.blackBright("[ Back ]")
+      label: "[ Back ]"
     }
   ];
 
@@ -364,15 +364,15 @@ export async function settingsMenuHandler(tasks) {
 export const actionsWithoutSelection = [
   {
     value: {action: ACTION_TYPES.EXIT, handler: exitHandler},
-    label: pc.blackBright("[ Exit ]")
+    label: "[ Exit ]"
   },
   {
     value: {action: ACTION_TYPES.SETTINGS, handler: settingsMenuHandler},
-    label: pc.blackBright("[ Settings ]")
+    label: "[ Settings ]"
   },
   {
     value: {action: ACTION_TYPES.ADD_TASK, handler: addTaskHandler},
-    label: pc.blackBright("[ Add Task ]")
+    label: "[ Add Task ]"
   }
 ];
 
