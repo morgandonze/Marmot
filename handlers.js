@@ -11,23 +11,12 @@ import {
   generateId,
   findTaskById,
   formatTaskLabel,
-  formatTimeInterval
+  formatTimeInterval,
+  calculateTaskTimingStatus,
+  getTaskDescriptionColor,
+  makeNextRep,
+  saveData
 } from './utils.js';
-
-export function makeNextRep(previousRep) {
-  const now = getCurrentTimestamp();
-  return {
-    ...previousRep,
-    id: state.nextID++,
-    uuid: generateId(),
-    iteration: previousRep.iteration + 1,
-    inProgress: true,
-    successful: null,
-    createdAt: now,
-    completedAt: null,
-    sequenceId: previousRep.sequenceId
-  };
-}
 
 export function createTask(data) {
   const now = getCurrentTimestamp();
@@ -254,6 +243,7 @@ export async function filterProjectHandler(tasks) {
   });
 
   state.projectFilter = selectedProject;
+  saveData(tasks);
   return tasks;
 }
 
@@ -312,6 +302,7 @@ export async function showHistoryHandler(tasks, actionInfo) {
 
 export function toggleWaitingHandler(tasks) {
   state.showWaiting = !state.showWaiting;
+  saveData(tasks);
   return tasks;
 }
 

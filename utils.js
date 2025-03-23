@@ -9,14 +9,33 @@ export function getCurrentTimestamp() {
 }
 
 export function saveData(data) {
-  const jsonData = JSON.stringify(data, null, 2);
+  const jsonData = JSON.stringify({
+    tasks: data,
+    settings: {
+      showWaiting: state.showWaiting,
+      projectFilter: state.projectFilter
+    }
+  }, null, 2);
   fs.writeFileSync(DATA_FILE, jsonData);
 }
 
 export function loadData() {
   try {
     const data = fs.readFileSync(DATA_FILE, 'utf-8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    
+    // Handle legacy data format (just tasks array)
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    
+    // Handle new data format with settings
+    if (parsed.settings) {
+      state.showWaiting = parsed.settings.showWaiting;
+      state.projectFilter = parsed.settings.projectFilter;
+    }
+    
+    return parsed.tasks || [];
   } catch (err) {
     // If file doesn't exist, create it with empty data
     saveData([]);
@@ -136,4 +155,19 @@ export function getTaskDescriptionColor(task, now) {
   }
 
   return pc.white;
+}
+
+export function makeNextRep(previousRep) {
+  const now = getCurrentTimestamp();
+  return {
+    ...previousRep,
+    id: state.nextID++,
+    uuid: generateId(),
+    iteration: previousRep.iteration + 1,
+    inProgress: true,
+    successful: null,
+    createdAt: now,
+    completedAt: null,
+    sequenceId: previousRep.sequenceId
+  };
 } 
