@@ -103,8 +103,12 @@ export async function abortTaskHandler(tasks, actionInfo) {
     completedAt: now
   };
 
-  // Clear current task
-  state.currentTask = null;
+  // Create next rep
+  const nextRep = makeNextRep(tasks[taskIndex]);
+  tasks.push(nextRep);
+
+  // Update current task to next rep
+  state.currentTask = nextRep;
 
   return tasks;
 }

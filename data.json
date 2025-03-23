@@ -1,67 +1,28 @@
 [
   {
-    "uuid": "a4c4fc46-6516-46ae-9c0a-1150c29f8080",
     "id": 0,
-    "iteration": 0,
-    "description": "Test task 1",
+    "uuid": "4a549709-14ee-458e-8c51-1f7ac1442f07",
+    "description": "Awawa",
     "project": "Test",
+    "repeatInterval": 36000,
+    "iteration": 0,
     "inProgress": false,
     "successful": true,
-    "createdAt": 1742693520681,
-    "completedAt": 1742693541786,
-    "repeatInterval": 43199.99999999999,
-    "sequenceId": "2185408d-d7ea-45bc-a98b-b2574bb44874"
+    "createdAt": 1742694985670,
+    "completedAt": 1742694992089,
+    "sequenceId": "1d164ad2-aef7-42d0-9720-b1ef5f7ee199"
   },
   {
-    "uuid": "f6bf18e6-406f-4358-b10d-6a5a8929acc3",
     "id": 1,
+    "uuid": "327e5b95-6bec-4f2b-b3d7-7289e87d4410",
+    "description": "Awawa",
+    "project": "Test",
+    "repeatInterval": 36000,
     "iteration": 1,
-    "description": "Test task 1",
-    "project": "Test",
     "inProgress": false,
-    "successful": true,
-    "createdAt": 1742693541786,
-    "completedAt": 1742694367165,
-    "repeatInterval": 43199.99999999999,
-    "sequenceId": "2185408d-d7ea-45bc-a98b-b2574bb44874"
-  },
-  {
-    "uuid": "e3039cb8-c206-4351-995b-8e646cd6eebf",
-    "id": 2,
-    "iteration": 0,
-    "description": "Test task 2",
-    "project": "Test",
-    "inProgress": false,
-    "successful": true,
-    "createdAt": 1742693561152,
-    "completedAt": 1742693595451,
-    "repeatInterval": 360000,
-    "sequenceId": "5d6cc3ac-6556-4e5f-815d-9cb7c594ec2c"
-  },
-  {
-    "uuid": "73d998ed-d570-4876-8063-f9907566309d",
-    "id": 3,
-    "iteration": 1,
-    "description": "Test task 2",
-    "project": "Test",
-    "inProgress": true,
-    "successful": null,
-    "createdAt": 1742693595451,
-    "completedAt": null,
-    "repeatInterval": 360000,
-    "sequenceId": "5d6cc3ac-6556-4e5f-815d-9cb7c594ec2c"
-  },
-  {
-    "uuid": "34613bde-2cd3-4544-bce3-675ddb332682",
-    "id": 4,
-    "iteration": 2,
-    "description": "Test task 1",
-    "project": "Test",
-    "inProgress": true,
-    "successful": null,
-    "createdAt": 1742694367166,
-    "completedAt": null,
-    "repeatInterval": 43199.99999999999,
-    "sequenceId": "2185408d-d7ea-45bc-a98b-b2574bb44874"
+    "successful": false,
+    "createdAt": 1742694992090,
+    "completedAt": 1742694996628,
+    "sequenceId": "1d164ad2-aef7-42d0-9720-b1ef5f7ee199"
   }
 ]
