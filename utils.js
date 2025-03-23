@@ -99,18 +99,75 @@ export function formatTaskLabel(task) {
     const timeToWait = readyTime - now;
     if (percentToReady <= 10) {
       // Almost ready (within 10% of ready time)
-      return pc.magenta(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+      const base = pc.magenta(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+      if (!state.showDetailedInfo) return base;
+      
+      const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+      const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+      const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+      const completionPercentage = nonPendingTasks > 0 
+        ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+        : "0.0";
+      
+      const details = [];
+      details.push(`Ready in ${formatTimeInterval(timeToWait)}`);
+      details.push(pc.yellowBright(`${completionPercentage}%`));
+      
+      return `${base} | ${details.join(' | ')}`;
     }
-    return pc.cyan(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+    const base = pc.cyan(`${baseLabel} - Available in ${formatTimeInterval(timeToWait)}`);
+    if (!state.showDetailedInfo) return base;
+    
+    const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+    const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+    const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+    const completionPercentage = nonPendingTasks > 0 
+      ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+      : "0.0";
+    
+    const details = [];
+    details.push(`Ready in ${formatTimeInterval(timeToWait)}`);
+    details.push(pc.yellowBright(`${completionPercentage}%`));
+    
+    return `${base} | ${details.join(' | ')}`;
   } else if (timeSinceReady >= task.repeatInterval) {
     // Overdue (past one repeat interval)
-    return pc.red(baseLabel);
+    const base = pc.red(baseLabel);
+    if (!state.showDetailedInfo) return base;
+    
+    const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+    const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+    const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+    const completionPercentage = nonPendingTasks > 0 
+      ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+      : "0.0";
+    
+    const details = [];
+    details.push(`Overdue by ${formatTimeInterval(timeSinceReady - task.repeatInterval)}`);
+    details.push(pc.yellowBright(`${completionPercentage}%`));
+    
+    return `${base} | ${details.join(' | ')}`;
   } else if (percentSinceReady >= 60) {
     // Almost overdue (60% or more past ready time)
-    return pc.yellow(baseLabel);
+    const base = pc.yellow(baseLabel);
+    if (!state.showDetailedInfo) return base;
+    
+    const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
+    const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
+    const nonPendingTasks = sequenceTasks.filter(t => !t.inProgress).length;
+    const completionPercentage = nonPendingTasks > 0 
+      ? (completedTasks / nonPendingTasks * 100).toFixed(1)
+      : "0.0";
+    
+    const details = [];
+    details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
+    details.push(pc.yellowBright(`${completionPercentage}%`));
+    
+    return `${base} | ${details.join(' | ')}`;
   }
   
-  if (!state.showDetailedInfo) return baseLabel;
+  const base = baseLabel;
+  if (!state.showDetailedInfo) return base;
   
   const sequenceTasks = state.tasks.filter(t => t.sequenceId === task.sequenceId);
   const completedTasks = sequenceTasks.filter(t => !t.inProgress && t.successful !== false).length;
@@ -118,7 +175,7 @@ export function formatTaskLabel(task) {
   const completionPercentage = nonPendingTasks > 0 
     ? (completedTasks / nonPendingTasks * 100).toFixed(1)
     : "0.0";
-  
+
   const details = [];
   if (timeSinceReady > 0) {
     details.push(`Due in ${formatTimeInterval(task.repeatInterval - timeSinceReady)}`);
@@ -127,7 +184,7 @@ export function formatTaskLabel(task) {
   }
   details.push(pc.yellowBright(`${completionPercentage}%`));
   
-  return `${baseLabel} | ${details.join(' | ')}`;
+  return `${base} | ${details.join(' | ')}`;
 }
 
 export function calculateTaskTimingStatus(task, now) {
